@@ -1,0 +1,128 @@
+@font-face {
+    font-family: Favorit-Mono;
+    src: url(assets/fonts/Favorit-Mono.woff2);
+}
+
+@font-face {
+    font-family: Monorama;
+    src: url(assets/fonts/Monorama-Regular.woff2);
+}
+
+@font-face {
+    font-family: Neue Haas;
+    src: url(assets/fonts/NHaasGroteskTXPro-55Rg.woff2);
+}
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition: var(--color-transition, background-color 0.3s ease, color 0.3s ease);
+}
+
+html.dark-theme{
+    --primary:#101010;
+    --secondary:#797872;
+    --third:#cdc9b9;
+}
+html.grey-theme{
+    --primary:#2a2c29;
+    --secondary:#a7a597;
+    --third:#5d6c6a;
+}
+html.lime-green-theme{
+    --primary:#dddddd;
+    --secondary:#3f3f3f;
+    --third:#c4ff58;
+}
+html.khaki-theme{
+    --primary:#e3e4d5;
+    --secondary:#474741;
+    --third:#a6a77e;
+}
+html.red-theme{
+    --primary:#5c6057;
+    --secondary:#272925;
+    --third:#fe5344;
+}
+html.grey-white-theme{
+    --primary:#3c4236;
+    --secondary:#8d9784;
+    --third:#bcc89c;
+}
+html.light-theme{
+    --primary:#999d9c;
+    --secondary:#cdc9b9;
+    --third:#797872;
+}
+html.pastel-red-theme{
+    --primary:#c5cfba;
+    --secondary:#6d7567;
+    --third:#f16d50;
+}
+
+html,
+body{
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--primary);
+}
+
+.overlay{
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2;
+    display: flex;
+    pointer-events: none;
+}
+
+.bar{
+    width: 10vw;
+    height: 105vh;
+    background: var(--third);
+}
+.counter{
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    z-index: 10000;
+    color: var(--primary);
+    padding: 0em 0.2em;
+    font-family: Monorama;
+    font-size: 10vw;
+    pointer-events: none;
+}
+nav{
+    position: fixed;
+    top: 0;
+    display: flex;
+}
+
+nav ul.primary li a {
+    text-decoration: none;
+}
+
+.name a p{
+    color: var(--third);
+    font-family: Neue Haas;
+}
+
+.projects a p{
+    color: var(--secondary);
+    font-family: Favorit-Mono;
+}
+
+.info a p{
+    color: var(--secondary);
+    font-family: Favorit-Mono;
+}
+
+::selection{
+    color: var(--primary);
+    background-color: var(--third);
+}

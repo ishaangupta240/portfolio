@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Transition with CSS Variables</title>
+    <style>
+        body {
+            --main-bg-color: #333; /* Default background color */
+            --main-text-color: #fff; /* Default text color */
+            transition: var(--color-transition, background-color 0.5s ease, color 0.5s ease); /* Apply transition to background-color and color */
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--main-bg-color);
+            color: var(--main-text-color);
+        }
+
+        /* Define different color variables for themes */
+        :root {
+            --dark-bg-color: #333;
+            --dark-text-color: #fff;
+            --light-bg-color: #fff;
+            --light-text-color: #333;
+            --blue-bg-color: #3498db;
+            --blue-text-color: #fff;
+            /* Add more color variables as needed */
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Content of the page -->
+
+    <button onclick="toggleTheme()">Toggle Theme</button>
+
+    <script>
+        var themes = [
+            { "--main-bg-color": "var(--dark-bg-color)", "--main-text-color": "var(--dark-text-color)" },
+            { "--main-bg-color": "var(--light-bg-color)", "--main-text-color": "var(--light-text-color)" },
+            { "--main-bg-color": "var(--blue-bg-color)", "--main-text-color": "var(--blue-text-color)" }
+            /* Add more theme objects as needed */
+        ];
+
+        var currentThemeIndex = 0;
+
+        function toggleTheme() {
+            var newTheme = themes[currentThemeIndex];
+
+            Object.keys(newTheme).forEach(property => {
+                document.body.style.setProperty(property, newTheme[property]);
+            });
+
+            // Increment the theme index or reset to 0 if it exceeds the number of themes
+            currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+        }
+    </script>
+
+</body>
+</html>
