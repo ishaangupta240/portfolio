@@ -142,27 +142,30 @@ const Dock = () => {
   return (
     <section id="dock">
       <div ref={dockRef} className={`dock-container ${isLiquidDock ? 'liquid-glass-static dock-liquid' : 'dock-normal-glass'}`}>
-        {dockApps.map(({ id, name, icon, canOpen }, index) => (
-          <div key={id} className={`dock-item ${canOpen ? 'is-running' : 'is-disabled'}`}>
-            <button 
-            type='button' 
-            className={`dock-icon ${isLiquidDock ? 'liquid-glass' : ''}`} 
-            ref={(el) => {
-              iconRefs.current[index] = el
-            }}
-            aria-label={name} 
-            data-tooltip-id="dock-tooltip"
-            data-tooltip-place="top"
-            data-tooltip-content={name}
-            data-tooltip-delay-show={150}
-            disabled={!canOpen}
-            onClick={() => toggleApp({ id, name, canOpen })}
-            >
-                <img src={`/images/${icon}`} alt={`${name} icon`} loading='lazy' className={canOpen ? '' : 'opacity-60'} />
-            </button>
-            <span className='running-dot' aria-hidden='true' />
-          </div>
-        ))}
+        {dockApps.map(({ id, name, icon, canOpen }, index) => {
+            const isOpen = windows[id]?.isOpen ?? false
+            return (
+                <div key={id} className={`dock-item ${!canOpen ? 'is-disabled' : isOpen ? 'is-running' : ''}`}>
+                    <button 
+                    type='button' 
+                    className={`dock-icon ${isLiquidDock ? 'liquid-glass' : ''}`} 
+                    ref={(el) => {
+                    iconRefs.current[index] = el
+                    }}
+                    aria-label={name} 
+                    data-tooltip-id="dock-tooltip"
+                    data-tooltip-place="top"
+                    data-tooltip-content={name}
+                    data-tooltip-delay-show={150}
+                    disabled={!canOpen}
+                    onClick={() => toggleApp({ id, name, canOpen })}
+                    >
+                        <img src={`/images/${icon}`} alt={`${name} icon`} loading='lazy' className={canOpen ? '' : 'opacity-60'} />
+                    </button>
+                    <span className='running-dot' aria-hidden='true' />
+                </div>
+            )
+        })}
         <Tooltip id="dock-tooltip" place='top' offset={10} positionStrategy='fixed' className='tooltip' />
       </div>
     </section>
