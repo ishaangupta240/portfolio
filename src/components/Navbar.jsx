@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import { gsap } from 'gsap'
 
 import React, { useEffect, useState } from 'react'
 import { navIcons, navLinks } from '#constants';
@@ -151,7 +152,7 @@ const Navbar = () => {
     }
 
     const rebuildFilter = () => {
-      const targets = Array.from(document.querySelectorAll('#menu-bar .liquid-glass'))
+      const targets = Array.from(document.querySelectorAll('.liquid-glass, .liquid-glass-static'))
       if (!targets.length) return
 
       let w = 0
@@ -214,6 +215,55 @@ const Navbar = () => {
     return () => {
       window.removeEventListener('resize', onResize)
       clearTimeout(resizeTimer)
+    }
+  }, [])
+
+  useEffect(() => {
+    const targets = Array.from(
+      document.querySelectorAll(
+        '#menu-bar .menu-link, #menu-bar .menu-icon-btn, #menu-bar .menu-apple-btn, #menu-bar .menu-time'
+      )
+    )
+
+    if (!targets.length) return
+
+    const cleanups = targets.map((el) => {
+      const xTo = gsap.quickTo(el, 'x', { duration: 0.12, ease: 'expo.out' })
+      const yTo = gsap.quickTo(el, 'y', { duration: 0.12, ease: 'expo.out' })
+      const scaleTo = gsap.quickTo(el, 'scale', { duration: 0.12, ease: 'expo.out' })
+
+      const onEnter = () => {
+        scaleTo(1.032)
+        yTo(-1)
+      }
+
+      const onMove = (event) => {
+        const rect = el.getBoundingClientRect()
+        const px = (event.clientX - rect.left) / rect.width - 0.5
+        const py = (event.clientY - rect.top) / rect.height - 0.5
+        xTo(px * 2.2)
+        yTo(-1 + py * 1.35)
+      }
+
+      const onLeave = () => {
+        xTo(0)
+        yTo(0)
+        scaleTo(1)
+      }
+
+      el.addEventListener('mouseenter', onEnter)
+      el.addEventListener('mousemove', onMove)
+      el.addEventListener('mouseleave', onLeave)
+
+      return () => {
+        el.removeEventListener('mouseenter', onEnter)
+        el.removeEventListener('mousemove', onMove)
+        el.removeEventListener('mouseleave', onLeave)
+      }
+    })
+
+    return () => {
+      cleanups.forEach((cleanup) => cleanup())
     }
   }, [])
 
