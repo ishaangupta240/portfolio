@@ -160,7 +160,12 @@ const Dock = () => {
                     disabled={!canOpen}
                     onClick={() => toggleApp({ id, name, canOpen })}
                     >
-                        <img src={`/images/${icon}`} alt={`${name} icon`} loading='lazy' className={canOpen ? '' : 'opacity-60'} />
+                        <img
+                          src={`/images/${icon}`}
+                          alt={`${name} icon`}
+                          loading='lazy'
+                          className={`dock-icon-image dock-icon-${id} ${canOpen ? '' : 'opacity-60'}`}
+                        />
                     </button>
                     <span className='running-dot' aria-hidden='true' />
                 </div>

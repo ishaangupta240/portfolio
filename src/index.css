@@ -75,6 +75,7 @@ body {
     .apple-logo {
       @apply size-4 object-contain;
       display: block;
+      margin-top: -0.55vh;
       filter: brightness(0) invert(1) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
     }
 
@@ -293,6 +294,14 @@ border: 1px solid rgba(255, 255, 255, 0.18);
 
       img {
         @apply size-full object-contain object-center;
+      }
+
+      .dock-icon-image {
+        transform-origin: center;
+      }
+
+      .dock-icon-contact {
+        transform: scale(0.86);
       }
     }
 
