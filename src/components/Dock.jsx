@@ -139,13 +139,21 @@ const Dock = () => {
     }
   }, [])
 
+  const topRunningZ = dockApps.reduce((maxZ, app) => {
+    const z = windows[app.id]?.isOpen ? windows[app.id]?.zIndex ?? -1 : -1
+    return Math.max(maxZ, z)
+  }, -1)
+
   return (
     <section id="dock">
       <div ref={dockRef} className={`dock-container ${isLiquidDock ? 'liquid-glass-static dock-liquid' : 'dock-normal-glass'}`}>
         {dockApps.map(({ id, name, icon, canOpen }, index) => {
-            const isOpen = windows[id]?.isOpen ?? false
+            const win = windows[id]
+            const isOpen = win?.isOpen ?? false
+          const isRunning = win?.isRunning ?? false
+            const isActive = isOpen && (win?.zIndex ?? -1) === topRunningZ
             return (
-                <div key={id} className={`dock-item ${!canOpen ? 'is-disabled' : isOpen ? 'is-running' : ''}`}>
+            <div key={id} className={`dock-item ${!canOpen ? 'is-disabled' : isRunning ? 'is-running' : ''} ${isActive ? 'is-active' : ''}`}>
                     <button 
                     type='button' 
                     className={`dock-icon ${isLiquidDock ? 'liquid-glass' : ''}`} 
@@ -157,6 +165,7 @@ const Dock = () => {
                     data-tooltip-place="top"
                     data-tooltip-content={name}
                     data-tooltip-delay-show={150}
+                    data-window-key={id}
                     disabled={!canOpen}
                     onClick={() => toggleApp({ id, name, canOpen })}
                     >
