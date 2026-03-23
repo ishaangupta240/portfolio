@@ -4,15 +4,28 @@ import React from 'react'
 import { Tooltip } from 'react-tooltip'
 import { gsap } from 'gsap'
 import uiConfig from '../config/ui.json'
+import { useWindowStore } from '#store/window'
 
 const Dock = () => {
   const dockRef = useRef(null)
+  const {openWindow, closeWindow, windows} = useWindowStore()
   const iconRefs = useRef([])
   const dockStyle = uiConfig.dockStyle === 'normal' ? 'normal' : 'liquid'
   const isLiquidDock = dockStyle === 'liquid'
 
   const toggleApp = (app) => {
-    //To be added later
+    if(!app.canOpen) return
+    const win = windows[app.id]
+    if (!win) return
+
+    const nextOpenState = !win.isOpen
+    if(win.isOpen) {
+      closeWindow(app.id)
+    } else {
+      openWindow(app.id)
+    }
+
+    console.log(`Toggled ${app.name}: now ${nextOpenState ? 'open' : 'closed'}`)
   }
 
   useEffect(() => {
@@ -23,15 +36,16 @@ const Dock = () => {
       .filter(Boolean)
       .map((icon) => ({
         icon,
-        toScale: gsap.quickTo(icon, 'scale', { duration: 0.14, ease: 'power2.out' }),
+        toScaleX: gsap.quickTo(icon, 'scaleX', { duration: 0.14, ease: 'power2.out' }),
+        toScaleY: gsap.quickTo(icon, 'scaleY', { duration: 0.14, ease: 'power2.out' }),
         toLift: gsap.quickTo(icon, 'y', { duration: 0.14, ease: 'power2.out' }),
-        toBrightness: gsap.quickTo(icon, 'filter', { duration: 0.14, ease: 'power2.out' }),
       }))
 
     iconAnimators.forEach(({ icon }) => {
       gsap.set(icon, {
         y: 0,
-        scale: 1,
+        scaleX: 1,
+        scaleY: 1,
         transformOrigin: 'center bottom',
         force3D: true,
       })
@@ -52,10 +66,10 @@ const Dock = () => {
     }
 
     const resetDock = () => {
-      iconAnimators.forEach(({ toScale, toLift, toBrightness }) => {
-        toScale(1)
+      iconAnimators.forEach(({ toScaleX, toScaleY, toLift }) => {
+        toScaleX(1)
+        toScaleY(1)
         toLift(0)
-        toBrightness('brightness(1)')
       })
     }
 
@@ -65,7 +79,7 @@ const Dock = () => {
       const verticalDistance = Math.abs(pointerY - dockCenterY)
       const verticalFactor = Math.max(0.4, 1 - verticalDistance / 260)
 
-      iconAnimators.forEach(({ icon, toScale, toLift, toBrightness }, index) => {
+      iconAnimators.forEach(({ icon, toScaleX, toScaleY, toLift }, index) => {
         const centerX = iconCenters[index] ?? (dockRect.left + icon.offsetLeft + icon.offsetWidth / 2)
         const distance = Math.abs(pointerX - centerX)
         const sigma = 50
@@ -75,15 +89,13 @@ const Dock = () => {
         const isDisabled = icon.disabled
         const maxScale = isDisabled ? 1.06 : 1.32
         const maxLift = isDisabled ? 2 : 15
-        const maxBrightness = isDisabled ? 1.03 : 1.1
 
         const scale = 1 + influence * (maxScale - 1)
         const lift = influence * maxLift
-        const brightness = 1 + influence * (maxBrightness - 1)
 
-        toScale(scale)
+        toScaleX(scale)
+        toScaleY(scale)
         toLift(-lift)
-        toBrightness(`brightness(${brightness.toFixed(3)})`)
       })
     }
 
@@ -144,7 +156,7 @@ const Dock = () => {
             data-tooltip-content={name}
             data-tooltip-delay-show={150}
             disabled={!canOpen}
-            onClick={() => toggleApp({ id, canOpen })}
+            onClick={() => toggleApp({ id, name, canOpen })}
             >
                 <img src={`/images/${icon}`} alt={`${name} icon`} loading='lazy' className={canOpen ? '' : 'opacity-60'} />
             </button>

@@ -227,13 +227,25 @@ const Navbar = () => {
 
     if (!targets.length) return
 
+    targets.forEach((el) => {
+      gsap.set(el, {
+        x: 0,
+        y: 0,
+        scaleX: 1,
+        scaleY: 1,
+        force3D: true,
+      })
+    })
+
     const cleanups = targets.map((el) => {
       const xTo = gsap.quickTo(el, 'x', { duration: 0.12, ease: 'expo.out' })
       const yTo = gsap.quickTo(el, 'y', { duration: 0.12, ease: 'expo.out' })
-      const scaleTo = gsap.quickTo(el, 'scale', { duration: 0.12, ease: 'expo.out' })
+      const scaleXTo = gsap.quickTo(el, 'scaleX', { duration: 0.12, ease: 'expo.out' })
+      const scaleYTo = gsap.quickTo(el, 'scaleY', { duration: 0.12, ease: 'expo.out' })
 
       const onEnter = () => {
-        scaleTo(1.032)
+        scaleXTo(1.032)
+        scaleYTo(1.032)
         yTo(-1)
       }
 
@@ -248,7 +260,8 @@ const Navbar = () => {
       const onLeave = () => {
         xTo(0)
         yTo(0)
-        scaleTo(1)
+        scaleXTo(1)
+        scaleYTo(1)
       }
 
       el.addEventListener('mouseenter', onEnter)
