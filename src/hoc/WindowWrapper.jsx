@@ -45,10 +45,22 @@ const WindowWrapper = (Component, windowKey) => {
             return menuBar ? Math.ceil(menuBar.getBoundingClientRect().bottom + 6) : 36
         }
 
-        const getDockRect = () => {
+        const getDockRect = (fallbackRect) => {
             const btn  = document.querySelector(`#dock [data-window-key="${windowKey}"]`)
             const rect = btn?.getBoundingClientRect()
             if (rect) return rect
+
+            if (fallbackRect) {
+                const centerX = fallbackRect.left + fallbackRect.width / 2
+                const centerY = fallbackRect.top + fallbackRect.height / 2
+                return {
+                    left: centerX - 24,
+                    top: centerY - 24,
+                    width: 48,
+                    height: 48,
+                }
+            }
+
             return {
                 left: window.innerWidth / 2 - 24,
                 top: window.innerHeight - 72,
@@ -222,10 +234,12 @@ const WindowWrapper = (Component, windowKey) => {
             const baseY = Number(gsap.getProperty(el, 'y')) || 0
             const baseScaleX = Number(gsap.getProperty(el, 'scaleX')) || 1
             const baseScaleY = Number(gsap.getProperty(el, 'scaleY')) || 1
+            const dockButton = document.querySelector(`#dock [data-window-key="${windowKey}"]`)
+            const hasDockAnchor = !!dockButton
 
             const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-            const dockRect = getDockRect()
             const openRect = el.getBoundingClientRect()
+            const dockRect = getDockRect(openRect)
             const openLeft = openRect.left
             const openRight = openRect.right
             const openTop = openRect.top
@@ -362,6 +376,57 @@ const WindowWrapper = (Component, windowKey) => {
                 if (!isOpen) setIsVisible(false)
                 gsap.set(el, { clearProps: 'transform,opacity,filter,clipPath,willChange' })
                 return
+            }
+
+            // Windows that don't have a matching Dock icon should not use genie motion pathing.
+            if (!hasDockAnchor) {
+                if (isOpen) {
+                    gsap.set(el, {
+                        visibility: 'visible',
+                        opacity: 0,
+                        scaleX: 0.98,
+                        scaleY: 0.98,
+                        filter: 'none',
+                        clipPath: 'none',
+                    })
+
+                    tweenRef.current = gsap.to(el, {
+                        opacity: 1,
+                        scaleX: 1,
+                        scaleY: 1,
+                        duration: 0.2,
+                        ease: 'power2.out',
+                        onComplete: () => {
+                            gsap.set(el, { clearProps: 'transform,opacity,filter,clipPath,willChange' })
+                        },
+                    })
+
+                    return () => {
+                        tweenRef.current?.kill()
+                    }
+                }
+
+                tweenRef.current = gsap.to(el, {
+                    opacity: 0,
+                    scaleX: 0.98,
+                    scaleY: 0.98,
+                    duration: 0.16,
+                    ease: 'power1.in',
+                    onComplete: () => {
+                        gsap.set(el, {
+                            visibility: 'hidden',
+                            opacity: 0,
+                        })
+                        dragRef.current?.kill()
+                        dragRef.current = null
+                        setIsVisible(false)
+                    },
+                })
+
+                return () => {
+                    tweenRef.current?.kill()
+                    fullscreenTweenRef.current?.kill()
+                }
             }
 
             if (isOpen) {

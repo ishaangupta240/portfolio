@@ -77,25 +77,24 @@ const dockApps = [
 const blogPosts = [
   {
     id: 1,
-    date: "Sep 2, 2025",
-    title:
-      "TypeScript Explained: What It Is, Why It Matters, and How to Master It",
-    image: "/images/blog1.png",
-    link: "https://jsmastery.com/blog/typescript-explained-what-it-is-why-it-matters-and-how-to-master-it",
+    date: "Lorem Ipsum 01",
+    title: "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+    image: "/images/figma.png",
+    link: "https://www.lipsum.com/",
   },
   {
     id: 2,
-    date: "Aug 28, 2025",
-    title: "The Ultimate Guide to Mastering Three.js for 3D Development",
-    image: "/images/blog2.png",
-    link: "https://jsmastery.com/blog/the-ultimate-guide-to-mastering-three-js-for-3d-development",
+    date: "Lorem Ipsum 02",
+    title: "Sed do eiusmod tempor incididunt ut labore et dolore magna",
+    image: "/images/figma.png",
+    link: "https://www.lipsum.com/",
   },
   {
     id: 3,
-    date: "Aug 15, 2025",
-    title: "The Ultimate Guide to Mastering GSAP Animations",
-    image: "/images/blog3.png",
-    link: "https://jsmastery.com/blog/the-ultimate-guide-to-mastering-gsap-animations",
+    date: "Lorem Ipsum 03",
+    title: "Ut enim ad minim veniam quis nostrud exercitation ullamco",
+    image: "/images/figma.png",
+    link: "https://www.lipsum.com/",
   },
 ];
 

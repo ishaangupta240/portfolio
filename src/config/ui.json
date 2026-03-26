@@ -1,3 +1,10 @@
 {
-  "dockStyle": "liquid"
+  "dockStyle": "liquid",
+  "bootLoader": {
+    "logoDurationMs": 3000,
+    "completeHoldMs": 1000,
+    "exitDurationMs": 2500,
+    "startupSoundSrc": "/files/StartupIntelT2Mac.wav",
+    "startupSoundDelayMs": 0
+  }
 }
