@@ -4,8 +4,8 @@ import { Download } from 'lucide-react'
 import { Document, Page, pdfjs } from 'react-pdf'
 import React, { useEffect, useRef, useState } from 'react'
 
-import 'react-pdf/src/Page/TextLayer.css'
-import 'react-pdf/src/Page/AnnotationLayer.css'
+import 'react-pdf/dist/Page/TextLayer.css'
+import 'react-pdf/dist/Page/AnnotationLayer.css'
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',

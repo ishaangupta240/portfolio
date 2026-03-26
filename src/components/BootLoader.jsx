@@ -5,6 +5,7 @@ const DEFAULT_COMPLETE_HOLD_MS = 350
 const DEFAULT_EXIT_DURATION_MS = 520
 const DEFAULT_SOUND_DELAY_MS = 120
 const POPUP_FADE_OUT_MS = 360
+const MISSING_POPUP_SVG = 'MISSING_SVG'
 
 const clampDuration = (value, fallback) => {
   const parsed = Number(value)
@@ -20,7 +21,7 @@ const BootLoader = ({
   startupSoundSrc = '',
   startupSoundDelayMs = DEFAULT_SOUND_DELAY_MS,
 }) => {
-  const [popupSvgMarkup, setPopupSvgMarkup] = useState('')
+  const [popupSvgMarkup, setPopupSvgMarkup] = useState(null)
   const [isStarting, setIsStarting] = useState(false)
   const [hasStarted, setHasStarted] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -39,15 +40,16 @@ const BootLoader = ({
     let isMounted = true
 
     fetch('/icons/Bootloader.svg')
-      .then((response) => (response.ok ? response.text() : ''))
+      .then((response) => (response.ok ? response.text() : null))
       .then((svgMarkup) => {
         if (isMounted) {
-          setPopupSvgMarkup(svgMarkup)
+          const normalizedMarkup = typeof svgMarkup === 'string' ? svgMarkup.trim() : ''
+          setPopupSvgMarkup(normalizedMarkup ? normalizedMarkup : MISSING_POPUP_SVG)
         }
       })
       .catch(() => {
         if (isMounted) {
-          setPopupSvgMarkup('')
+          setPopupSvgMarkup(MISSING_POPUP_SVG)
         }
       })
 
@@ -99,7 +101,6 @@ const BootLoader = ({
       const elapsed = now - startTime
       const ratio = Math.min(elapsed / bootDuration, 1)
 
-      // Smooth out the progress so it feels closer to a macOS boot loader.
       const eased = 1 - Math.pow(1 - ratio, 2.1)
       const nextProgress = Math.min(100, Math.round(eased * 100))
       setProgress(nextProgress)
@@ -134,13 +135,11 @@ const BootLoader = ({
           startupAudio.currentTime = 0
 
           startupAudio.play().catch(() => {
-            // Some browsers block autoplay with sound until user interaction.
             if (unlockHandlerRef.current) return
 
             const retryPlayback = () => {
               startupAudio.currentTime = 0
               startupAudio.play().catch(() => {
-                // If this still fails, keep boot flow uninterrupted.
               })
 
               window.removeEventListener('pointerdown', retryPlayback)
@@ -194,9 +193,12 @@ const BootLoader = ({
     }, POPUP_FADE_OUT_MS)
   }
 
+  const hasPopupSvg = typeof popupSvgMarkup === 'string' && popupSvgMarkup !== MISSING_POPUP_SVG
+
   return (
     <div
       className={`boot-loader ${isExiting ? 'is-exiting' : ''}`}
+      style={{ '--boot-exit-duration': `${exitDuration}ms` }}
       role="status"
       aria-live="polite"
       aria-label="Starting macOS experience"
@@ -208,22 +210,39 @@ const BootLoader = ({
           <div
             className={`boot-loader__start-popup ${isStarting ? 'is-starting' : ''}`}
             role="dialog"
-            aria-label="Bootloader startup dialog"
+            aria-label={hasPopupSvg ? 'Bootloader startup dialog' : 'Startup fallback dialog'}
           >
-            <div
-              className={`boot-loader__start-popup-svg ${isStarting ? 'is-fading-out' : ''}`}
-              aria-hidden="true"
-              dangerouslySetInnerHTML={{ __html: popupSvgMarkup }}
-            />
-            <button
-              type="button"
-              className="boot-loader__start-hotspot"
-              onClick={handleStart}
-              disabled={isStarting}
-              aria-label="Start"
-            >
-              Start
-            </button>
+            {hasPopupSvg ? (
+              <>
+                <div
+                  className={`boot-loader__start-popup-svg ${isStarting ? 'is-fading-out' : ''}`}
+                  aria-hidden="true"
+                  dangerouslySetInnerHTML={{ __html: popupSvgMarkup }}
+                />
+                <button
+                  type="button"
+                  className="boot-loader__start-hotspot"
+                  onClick={handleStart}
+                  disabled={isStarting}
+                  aria-label="Start"
+                >
+                  Start
+                </button>
+              </>
+            ) : (
+              <div className="boot-loader__fallback" role="group" aria-label="Startup fallback controls">
+                <p className="boot-loader__fallback-text">Startup UI missing. Continue boot?</p>
+                <button
+                  type="button"
+                  className="boot-loader__fallback-button"
+                  onClick={handleStart}
+                  disabled={isStarting}
+                  aria-label="Continue startup"
+                >
+                  Continue
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <>

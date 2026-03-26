@@ -29,7 +29,7 @@ const App = () => {
 
     enterTimeoutRef.current = window.setTimeout(() => {
       setIsDesktopEntering(false)
-    }, 2200)
+    }, 2620)
   }, [])
 
   const handleBootComplete = useCallback(() => {
@@ -50,15 +50,17 @@ const App = () => {
         />
       )}
 
-      <section className={`desktop-shell ${isDesktopEntering ? 'is-entering' : ''}`}>
-        <Navbar />
-        <Welcome />
-        <Dock />
+      {!showBootLoader && (
+        <section className={`desktop-shell ${isDesktopEntering ? 'is-entering' : ''}`}>
+          <Navbar />
+          <Welcome />
+          <Dock />
 
-        <Terminal />
-        <Safari />
-        <Resume />
-      </section>
+          <Terminal />
+          <Safari />
+          <Resume />
+        </section>
+      )}
     </main>
   )
 }
