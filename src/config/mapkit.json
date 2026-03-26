@@ -1,0 +1,12 @@
+{
+  "iframeUrl": "https://maps.apple.com/frame?center=28.567278%2C77.336799&span=0.095755%2C0.102899",
+  "locationName": "Noida",
+  "center": {
+    "latitude": 28.5355,
+    "longitude": 77.391
+  },
+  "span": {
+    "latitudeDelta": 0.08,
+    "longitudeDelta": 0.08
+  }
+}

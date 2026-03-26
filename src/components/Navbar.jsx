@@ -3,8 +3,10 @@ import { gsap } from 'gsap'
 
 import React, { useEffect, useState } from 'react'
 import { navIcons, navLinks } from '#constants';
+import { useWindowStore } from '#store/window';
 
 const Navbar = () => {
+  const { openWindow, closeWindow, windows } = useWindowStore()
   const [now, setNow] = useState(dayjs())
 
   useEffect(() => {
@@ -290,8 +292,18 @@ const Navbar = () => {
         <p className='menu-title'>Ishaan's Portfolio</p>
 
         <ul className='menu-links'>
-            {navLinks.map(({id, name}) => (
-                <li key={id}>
+            {navLinks.map(({id, name, type}) => (
+                <li
+                  key={id}
+                  onClick={() => {
+                    const isOpen = !!windows[type]?.isOpen
+                    if (isOpen) {
+                      closeWindow(type)
+                    } else {
+                      openWindow(type)
+                    }
+                  }}
+                >
               <p className='menu-link liquid-glass'>
                 <span className='menu-link-label'>{name}</span>
               </p>

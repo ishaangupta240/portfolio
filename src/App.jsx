@@ -1,18 +1,67 @@
-import React from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Dock, Navbar, Welcome } from '#components'
 import {gsap} from 'gsap'
 import { Draggable } from 'gsap/Draggable'
-import { Terminal } from '#windows';
+import { Terminal, Safari, Resume, Map } from '#windows';
+import BootLoader from '#components/BootLoader';
+import uiConfig from './config/ui.json'
 gsap.registerPlugin(Draggable);
 
 const App = () => {
+  const [showBootLoader, setShowBootLoader] = useState(true)
+  const [isDesktopEntering, setIsDesktopEntering] = useState(false)
+  const enterTimeoutRef = useRef(null)
+
+  useEffect(() => {
+    return () => {
+      if (enterTimeoutRef.current) {
+        clearTimeout(enterTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  const handleBootExitStart = useCallback(() => {
+    setIsDesktopEntering(true)
+
+    if (enterTimeoutRef.current) {
+      clearTimeout(enterTimeoutRef.current)
+    }
+
+    enterTimeoutRef.current = window.setTimeout(() => {
+      setIsDesktopEntering(false)
+    }, 2620)
+  }, [])
+
+  const handleBootComplete = useCallback(() => {
+    setShowBootLoader(false)
+  }, [])
+
   return (
     <main>
-      <Navbar />
-      <Welcome />
-      <Dock />
+      {showBootLoader && (
+        <BootLoader
+          onExitStart={handleBootExitStart}
+          onComplete={handleBootComplete}
+          logoDurationMs={uiConfig.bootLoader?.logoDurationMs}
+          completeHoldMs={uiConfig.bootLoader?.completeHoldMs}
+          exitDurationMs={uiConfig.bootLoader?.exitDurationMs}
+          startupSoundSrc={uiConfig.bootLoader?.startupSoundSrc}
+          startupSoundDelayMs={uiConfig.bootLoader?.startupSoundDelayMs}
+        />
+      )}
 
-      <Terminal />
+      {!showBootLoader && (
+        <section className={`desktop-shell ${isDesktopEntering ? 'is-entering' : ''}`}>
+          <Navbar />
+          <Welcome />
+          <Dock />
+
+          <Terminal />
+          <Safari />
+          <Resume />
+          <Map />
+        </section>
+      )}
     </main>
   )
 }
