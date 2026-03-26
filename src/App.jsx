@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Dock, Navbar, Welcome } from '#components'
 import {gsap} from 'gsap'
 import { Draggable } from 'gsap/Draggable'
-import { Terminal, Safari, Resume } from '#windows';
+import { Terminal, Safari, Resume, Map } from '#windows';
 import BootLoader from '#components/BootLoader';
 import uiConfig from './config/ui.json'
 gsap.registerPlugin(Draggable);
@@ -59,6 +59,7 @@ const App = () => {
           <Terminal />
           <Safari />
           <Resume />
+          <Map />
         </section>
       )}
     </main>

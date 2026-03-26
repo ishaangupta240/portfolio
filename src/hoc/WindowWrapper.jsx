@@ -97,7 +97,7 @@ const WindowWrapper = (Component, windowKey) => {
                 }
             }
 
-            const trigger = el.querySelector('#window-header') || el
+            const trigger = el.querySelector('.window-header') || el
             const [instance] = Draggable.create(el, {
                 type: 'x,y',
                 trigger,

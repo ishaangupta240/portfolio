@@ -49,6 +49,12 @@ const dockApps = [
     canOpen: true,
   },
   {
+    id: "map",
+    name: "Noida Map",
+    icon: "safari.png",
+    canOpen: true,
+  },
+  {
     id: "photos",
     name: "Gallery", // was "Photos"
     icon: "photos.png",
@@ -496,6 +502,7 @@ const WINDOW_CONFIG = {
   contact: { isOpen: false, isRunning: false, isMaximized: false, deferClose: false, zIndex: INITIAL_Z_INDEX, data: null },
   resume: { isOpen: false, isRunning: false, isMaximized: false, deferClose: false, zIndex: INITIAL_Z_INDEX, data: null },
   safari: { isOpen: false, isRunning: false, isMaximized: false, deferClose: false, zIndex: INITIAL_Z_INDEX, data: null },
+  map: { isOpen: false, isRunning: false, isMaximized: false, deferClose: false, zIndex: INITIAL_Z_INDEX, data: null },
   photos: { isOpen: false, isRunning: false, isMaximized: false, deferClose: false, zIndex: INITIAL_Z_INDEX, data: null },
   terminal: { isOpen: false, isRunning: false, isMaximized: false, deferClose: false, zIndex: INITIAL_Z_INDEX, data: null },
   txtfile: { isOpen: false, isRunning: false, isMaximized: false, deferClose: false, zIndex: INITIAL_Z_INDEX, data: null },

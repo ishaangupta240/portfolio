@@ -6,7 +6,7 @@ import { blogPosts } from '#constants'
 const Safari = () => {
   return (
     <>
-      <div id="window-header">
+      <div className="window-header">
         <div className="safari-toolbar">
           <div className="safari-toolbar-left">
             <WindowControls target="safari"/>

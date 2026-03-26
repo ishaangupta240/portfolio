@@ -180,8 +180,8 @@ const Dock = () => {
                 </div>
             )
         })}
-        <Tooltip id="dock-tooltip" place='top' offset={10} positionStrategy='fixed' className='tooltip' />
       </div>
+      <Tooltip id="dock-tooltip" place='top' offset={10} positionStrategy='fixed' className='tooltip' />
     </section>
   )
 }
