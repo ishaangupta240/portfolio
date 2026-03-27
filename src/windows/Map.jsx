@@ -1,97 +1,99 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useMemo, useState, useEffect, useRef } from 'react'
 import WindowWrapper from '#hoc/WindowWrapper'
 import WindowControls from '#components/WindowControls'
-import mapKitConfig from '../config/mapkit.json'
+import { Map as MapCanvas, MapControls } from '@/components/ui/map'
 
-const DEFAULT_MAP_IFRAME_URL =
-  'https://maps.apple.com/frame?center=28.567278%2C77.336799&span=0.095755%2C0.102899'
+const MAP_STYLES = {
+  '2d': 'https://tiles.openfreemap.org/styles/bright',
+  '3d': 'https://tiles.openfreemap.org/styles/liberty',
+}
 
-const Map = () => {
-  const mapShellRef = useRef(null)
-  const [errorMessage, setErrorMessage] = useState('')
-  const [isFrameBlocked, setIsFrameBlocked] = useState(false)
-  const [didFrameLoad, setDidFrameLoad] = useState(false)
-  const iframeUrl = mapKitConfig.iframeUrl || DEFAULT_MAP_IFRAME_URL
-  const openMapUrl = mapKitConfig.openMapUrl || iframeUrl.replace('/frame?', '/?')
+const MapView = () => {
+  const latitude = 28.57085
+  const longitude = 77.32593
+  const latitudeDelta = 0.08
+  const longitudeDelta = 0.08
 
-  useEffect(() => {
-    const shell = mapShellRef.current
-    if (!shell) return
-
-    const onWheel = (event) => {
-      // Best effort: block zoom-out wheel gestures while allowing scroll/zoom-in direction.
-      if (event.deltaY > 0) {
-        event.preventDefault()
-      }
-    }
-
-    shell.addEventListener('wheel', onWheel, { passive: false })
-
-    return () => {
-      shell.removeEventListener('wheel', onWheel)
-    }
-  }, [])
+  const mapRef = useRef(null)
+  const [mode, setMode] = useState('2d')
+  const is3D = mode === '3d'
 
   useEffect(() => {
-    if (!iframeUrl) return
+    mapRef.current?.easeTo({
+      pitch: is3D ? 60 : 0,
+      duration: 500,
+    })
+  }, [is3D])
 
-    setIsFrameBlocked(false)
-    setDidFrameLoad(false)
+  const initialZoom = 12
 
-    const timer = window.setTimeout(() => {
-      if (!didFrameLoad) {
-        setIsFrameBlocked(true)
-      }
-    }, 3200)
+  const maxBounds = useMemo(() => {
+    const halfLat = latitudeDelta / 2
+    const halfLng = longitudeDelta / 2
 
-    return () => {
-      clearTimeout(timer)
-    }
-  }, [iframeUrl, didFrameLoad])
+    return [
+      [longitude - halfLng, latitude - halfLat],
+      [longitude + halfLng, latitude + halfLat],
+    ]
+  }, [latitude, longitude, latitudeDelta, longitudeDelta])
 
-  useEffect(() => {
-    if (!iframeUrl) {
-      setErrorMessage('Missing iframe URL. Add iframeUrl in src/config/mapkit.json.')
-      return
-    }
-
-    setErrorMessage('')
-  }, [iframeUrl])
+  const selectedStyle = MAP_STYLES[mode]
 
   return (
     <>
       <div className="window-header">
         <WindowControls target="map" />
-        <h2>Maps - Noida</h2>
+        <h2>Maps</h2>
       </div>
 
-      <div ref={mapShellRef} className="map-shell">
-        <iframe
-          className="map-canvas map-frame"
-          src={iframeUrl}
-          title="Apple Maps Noida"
-          loading="lazy"
-          referrerPolicy="strict-origin-when-cross-origin"
-          allowFullScreen
-          onLoad={() => setDidFrameLoad(true)}
-          onError={() => setIsFrameBlocked(true)}
-        />
-        {isFrameBlocked ? (
-          <div className="map-message">
-            <div>
-              <p>maps.apple.com refused to connect in an embedded frame.</p>
-              <a href={openMapUrl} target="_blank" rel="noreferrer" className="map-open-link">
-                Open Noida in Apple Maps
-              </a>
-            </div>
+      <div className={`map-shell ${is3D ? 'is-3d' : 'is-2d'}`}>
+        <div className="h-full relative w-full">
+          <MapCanvas
+            ref={mapRef}
+            center={[longitude, latitude]}
+            zoom={initialZoom}
+            maxBounds={maxBounds}
+            dragRotate={false}
+            projection="mercator"
+            pitchWithRotate={false}
+            touchPitch={false}
+            styles={selectedStyle ? { light: selectedStyle, dark: selectedStyle } : undefined}
+            theme="dark"
+          >
+            <MapControls
+              className="map-native-controls"
+              position="bottom-right"
+              showZoom
+              showCompass
+              showLocate={false}
+              showFullscreen={false}
+            />
+          </MapCanvas>
+
+          <div className="map-mode-switch" role="group" aria-label="Map mode">
+            <button
+              type="button"
+              className={`map-mode-btn ${mode === '2d' ? 'is-active' : ''}`}
+              onClick={() => setMode('2d')}
+              aria-pressed={mode === '2d'}
+            >
+              2D
+            </button>
+            <button
+              type="button"
+              className={`map-mode-btn ${mode === '3d' ? 'is-active' : ''}`}
+              onClick={() => setMode('3d')}
+              aria-pressed={mode === '3d'}
+            >
+              3D
+            </button>
           </div>
-        ) : null}
-        {errorMessage ? <div className="map-message">{errorMessage}</div> : null}
+        </div>
       </div>
     </>
   )
 }
 
-const MapWindow = WindowWrapper(Map, 'map')
+const MapWindow = WindowWrapper(MapView, 'map')
 
 export default MapWindow
