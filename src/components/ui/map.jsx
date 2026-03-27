@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import MapLibreGL from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import {
@@ -334,38 +334,6 @@ function MapMarker({
       element: document.createElement("div"),
       draggable,
     }).setLngLat([longitude, latitude]);
-
-    const handleClick = (e) => callbacksRef.current.onClick?.(e);
-    const handleMouseEnter = (e) =>
-      callbacksRef.current.onMouseEnter?.(e);
-    const handleMouseLeave = (e) =>
-      callbacksRef.current.onMouseLeave?.(e);
-
-    markerInstance.getElement()?.addEventListener("click", handleClick);
-    markerInstance
-      .getElement()
-      ?.addEventListener("mouseenter", handleMouseEnter);
-    markerInstance
-      .getElement()
-      ?.addEventListener("mouseleave", handleMouseLeave);
-
-    const handleDragStart = () => {
-      const lngLat = markerInstance.getLngLat();
-      callbacksRef.current.onDragStart?.({ lng: lngLat.lng, lat: lngLat.lat });
-    };
-    const handleDrag = () => {
-      const lngLat = markerInstance.getLngLat();
-      callbacksRef.current.onDrag?.({ lng: lngLat.lng, lat: lngLat.lat });
-    };
-    const handleDragEnd = () => {
-      const lngLat = markerInstance.getLngLat();
-      callbacksRef.current.onDragEnd?.({ lng: lngLat.lng, lat: lngLat.lat });
-    };
-
-    markerInstance.on("dragstart", handleDragStart);
-    markerInstance.on("drag", handleDrag);
-    markerInstance.on("dragend", handleDragEnd);
-
     return markerInstance;
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -382,6 +350,53 @@ function MapMarker({
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map]);
+
+  // Register DOM and MapLibre event listeners for the marker.
+  // Handlers reference `callbacksRef.current` so they always call the latest props.
+  useEffect(() => {
+    if (!marker) return;
+
+    const el = marker.getElement();
+    if (!el) return;
+
+    const handleClick = (e) => callbacksRef.current.onClick?.(e);
+    const handleMouseEnter = (e) => callbacksRef.current.onMouseEnter?.(e);
+    const handleMouseLeave = (e) => callbacksRef.current.onMouseLeave?.(e);
+
+    el.addEventListener("click", handleClick);
+    el.addEventListener("mouseenter", handleMouseEnter);
+    el.addEventListener("mouseleave", handleMouseLeave);
+
+    const handleDragStart = () => {
+      const lngLat = marker.getLngLat();
+      callbacksRef.current.onDragStart?.({ lng: lngLat.lng, lat: lngLat.lat });
+    };
+    const handleDrag = () => {
+      const lngLat = marker.getLngLat();
+      callbacksRef.current.onDrag?.({ lng: lngLat.lng, lat: lngLat.lat });
+    };
+    const handleDragEnd = () => {
+      const lngLat = marker.getLngLat();
+      callbacksRef.current.onDragEnd?.({ lng: lngLat.lng, lat: lngLat.lat });
+    };
+
+    marker.on("dragstart", handleDragStart);
+    marker.on("drag", handleDrag);
+    marker.on("dragend", handleDragEnd);
+
+    return () => {
+      el.removeEventListener("click", handleClick);
+      el.removeEventListener("mouseenter", handleMouseEnter);
+      el.removeEventListener("mouseleave", handleMouseLeave);
+      try {
+        marker.off("dragstart", handleDragStart);
+        marker.off("drag", handleDrag);
+        marker.off("dragend", handleDragEnd);
+      } catch (err) {
+        // ignore
+      }
+    };
+  }, [marker]);
 
   if (
     marker.getLngLat().lng !== longitude ||
@@ -1019,6 +1034,7 @@ function MapClusterLayer(
     clusterColors = ["#22c55e", "#eab308", "#ef4444"],
     clusterThresholds = [100, 750],
     pointColor = "#3b82f6",
+    clusterTextFont = ["Open Sans", "Arial Unicode MS", "sans-serif"],
     onPointClick,
     onClusterClick
   }
@@ -1034,6 +1050,7 @@ function MapClusterLayer(
     clusterColors,
     clusterThresholds,
     pointColor,
+    clusterTextFont,
   });
 
   // Add source and layers on mount
@@ -1088,7 +1105,7 @@ function MapClusterLayer(
       filter: ["has", "point_count"],
       layout: {
         "text-field": "{point_count_abbreviated}",
-        "text-font": ["Open Sans"],
+        "text-font": clusterTextFont,
         "text-size": 12,
       },
       paint: {
@@ -1149,6 +1166,7 @@ function MapClusterLayer(
     const colorsChanged =
       prev.clusterColors !== clusterColors ||
       prev.clusterThresholds !== clusterThresholds;
+    const fontChanged = prev.clusterTextFont !== clusterTextFont;
 
     // Update cluster layer colors and sizes
     if (map.getLayer(clusterLayerId) && colorsChanged) {
@@ -1177,7 +1195,17 @@ function MapClusterLayer(
       map.setPaintProperty(unclusteredLayerId, "circle-color", pointColor);
     }
 
-    stylePropsRef.current = { clusterColors, clusterThresholds, pointColor };
+    // Update cluster count label font if it changed
+    if (map.getLayer(clusterCountLayerId) && fontChanged) {
+      const fontArray = Array.isArray(clusterTextFont) ? clusterTextFont : [clusterTextFont];
+      try {
+        map.setLayoutProperty(clusterCountLayerId, "text-font", fontArray);
+      } catch (err) {
+        // ignore if map isn't ready for layout updates
+      }
+    }
+
+    stylePropsRef.current = { clusterColors, clusterThresholds, pointColor, clusterTextFont };
   }, [
     isLoaded,
     map,
@@ -1186,6 +1214,7 @@ function MapClusterLayer(
     clusterColors,
     clusterThresholds,
     pointColor,
+    clusterTextFont,
   ]);
 
   // Handle click events
