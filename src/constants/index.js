@@ -50,8 +50,8 @@ const dockApps = [
   },
   {
     id: "map",
-    name: "Noida Map",
-    icon: "safari.png",
+    name: "Maps",
+    icon: "maps.png",
     canOpen: true,
   },
   {
@@ -505,6 +505,7 @@ const WINDOW_CONFIG = {
   map: { isOpen: false, isRunning: false, isMaximized: false, deferClose: false, zIndex: INITIAL_Z_INDEX, data: null },
   photos: { isOpen: false, isRunning: false, isMaximized: false, deferClose: false, zIndex: INITIAL_Z_INDEX, data: null },
   terminal: { isOpen: false, isRunning: false, isMaximized: false, deferClose: false, zIndex: INITIAL_Z_INDEX, data: null },
+  trash: { isOpen: false, isRunning: false, isMaximized: false, deferClose: false, zIndex: INITIAL_Z_INDEX, data: null },
   txtfile: { isOpen: false, isRunning: false, isMaximized: false, deferClose: false, zIndex: INITIAL_Z_INDEX, data: null },
   imgfile: { isOpen: false, isRunning: false, isMaximized: false, deferClose: false, zIndex: INITIAL_Z_INDEX, data: null },
 };

@@ -146,7 +146,11 @@ const Dock = () => {
 
   return (
     <section id="dock">
-      <div ref={dockRef} className={`dock-container ${isLiquidDock ? 'liquid-glass-static dock-liquid' : 'dock-normal-glass'}`}>
+      <div
+        ref={dockRef}
+        className={`dock-container ${isLiquidDock ? 'liquid-glass-static dock-liquid' : 'dock-normal-glass'}`}
+        style={{ '--dock-item-count': dockApps.length }}
+      >
         {dockApps.map(({ id, name, icon, canOpen }, index) => {
             const win = windows[id]
             const isOpen = win?.isOpen ?? false

@@ -34,7 +34,7 @@ body {
   --shadow-spread: -5px;
   --shadow-color: rgba(139, 139, 139, 0.337);
   --outer-shadow-blur: 24px;
-  --glass-radius: 12px;
+  --glass-radius: 1.15rem;
 }
 
 @utility flex-center {
@@ -80,7 +80,7 @@ body {
     }
 
     .menu-apple-btn {
-      @apply size-5 rounded-md flex items-center justify-center transition-all duration-100;
+      @apply size-5 rounded-4xl flex items-center justify-center transition-all duration-100;
       @apply appearance-none border-0 bg-transparent p-0 m-0 leading-none;
       align-self: center;
       opacity: 1;
@@ -98,7 +98,7 @@ body {
       @apply flex items-center gap-0.5 ms-1 max-sm:hidden;
 
       .menu-link {
-        @apply relative text-[13px] leading-none px-2 py-1 rounded-md text-white/85 transition-all duration-100 cursor-pointer font-medium overflow-hidden;
+        @apply relative text-[13px] leading-none px-2 py-1 rounded-4xl text-white/85 transition-all duration-100 cursor-pointer font-medium overflow-hidden;
         font-family: "SF Pro", system-ui, -apple-system, sans-serif;
         margin: 0;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -127,14 +127,14 @@ body {
       @apply flex items-center gap-1.5 max-sm:hidden;
 
       .menu-icon-btn {
-        @apply size-6 rounded-md flex items-center justify-center transition-all duration-100;
+        @apply size-6 rounded-4xl flex items-center justify-center transition-all duration-100;
         transform-origin: center;
         will-change: transform;
       }
     }
 
     .menu-time {
-      @apply relative px-2 py-1 rounded-md transition-all duration-100 inline-flex items-center;
+      @apply relative px-2 py-1 rounded-4xl transition-all duration-100 inline-flex items-center;
       @apply text-[12px] font-medium tracking-[0.002em] text-white;
       font-family: "SF Pro", system-ui, -apple-system, sans-serif;
       display: inline-flex;
@@ -210,6 +210,12 @@ body {
       z-index: 2;
     }
   }
+  .maplibregl-popup-content {
+    @apply bg-transparent! shadow-none! p-0! rounded-none!;
+  }
+  .maplibregl-popup-tip {
+    @apply hidden!;
+  }
 }
 
 @layer components {
@@ -224,7 +230,7 @@ body {
     @apply text-gray-200 flex flex-col justify-center items-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none max-sm:h-screen max-sm:w-full max-sm:px-10;
 
     .small-screen {
-      @apply sm:hidden m-7 bg-red-300/20 backdrop-blur-lg p-3 rounded-md absolute top-10;
+      @apply sm:hidden m-7 bg-red-300/20 backdrop-blur-lg p-3 rounded-4xl absolute top-10;
 
       p {
         @apply flex-1 text-[16px] text-center font-roboto text-gray-400;
@@ -234,15 +240,46 @@ body {
 
   #dock {
     @apply absolute bottom-3.5 left-1/2 -translate-x-1/2 z-50 select-none max-sm:hidden;
+    --dock-icon-size: 3rem;
+    --dock-slot-size: 3.28rem;
+    --dock-item-count: 7;
+    --dock-gap: 0.25rem;
+    --dock-padding-x-total: 0.75rem;
+    --dock-glass-radius: 1.35rem;
+    --dock-glass-height: calc(var(--dock-icon-size) + 0.92rem);
+
+    @media (min-width: 1920px) {
+      --dock-icon-size: 4rem;
+      --dock-slot-size: 4.28rem;
+    }
 
     .dock-container {
-      @apply relative inline-flex items-end gap-1 rounded-[1.15rem] px-1 py-1;
+      @apply relative inline-flex items-end gap-1 rounded-[1.15rem] px-1.5 pt-1.5 pb-1;
       background: transparent;
       overflow: visible;
-      width: max-content;
+      width: calc((var(--dock-slot-size) * var(--dock-item-count)) + (var(--dock-gap) * (var(--dock-item-count) - 1)) + var(--dock-padding-x-total));
+      min-width: max-content;
+      height: var(--dock-glass-height);
+      max-width: none;
+      min-height: var(--dock-glass-height);
+      border-radius: var(--dock-glass-radius);
+      box-sizing: border-box;
+    }
+
+    .dock-container.dock-liquid,
+    .dock-container.dock-normal-glass {
+      display: inline-flex;
+      align-items: flex-end;
+      justify-content: center;
+      --glass-radius: var(--dock-glass-radius);
+    }
+
+    .dock-container.dock-liquid {
+      border-radius: var(--dock-glass-radius);
     }
 
     .dock-liquid {
+      border-radius: var(--dock-glass-radius);
       border: 1px solid rgba(255, 255, 255, 0.22);
     }
 
@@ -257,8 +294,9 @@ border: 1px solid rgba(255, 255, 255, 0.18);
 
     .dock-item {
       @apply relative flex flex-col items-center justify-end;
-      width: 3rem;
-      min-width: 3rem;
+      width: var(--dock-slot-size);
+      min-width: var(--dock-slot-size);
+      min-height: calc(var(--dock-icon-size) + 0.4rem);
       padding-bottom: 0.32rem;
       z-index: 1;
 
@@ -268,26 +306,28 @@ border: 1px solid rgba(255, 255, 255, 0.18);
 
       &.is-running .running-dot {
         opacity: 0.9;
-        transform: translateY(0) scale(1);
+        transform: translate(-50%, 0) scale(1);
         width: 0.32rem;
       }
 
       &.is-active .running-dot {
         opacity: 1;
-        transform: translateY(0) scale(1.08);
+        transform: translate(-50%, 0) scale(1.08);
         width: 0.58rem;
         box-shadow: 0 0 10px rgba(255, 255, 255, 0.95);
       }
     }
 
     .tooltip {
-      @apply !py-1 !px-2.5 !w-fit !text-center !text-[11px] !rounded-lg !bg-black/55 !text-white/90;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      @apply !py-1 !px-2.5 !w-fit !text-center !text-[11px] !rounded-4xl !bg-white/100 !text-black/90;
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
     }
 
     .dock-icon {
-      @apply size-12 3xl:size-16 cursor-pointer rounded-[0.85rem];
+      @apply cursor-pointer rounded-[0.85rem];
+      width: var(--dock-icon-size);
+      height: var(--dock-icon-size);
       transform-origin: center bottom;
       will-change: transform;
 
@@ -325,12 +365,12 @@ border: 1px solid rgba(255, 255, 255, 0.18);
       @apply h-1 rounded-full;
       position: absolute;
       left: 50%;
-      bottom: 0.02rem;
+      bottom: 0.08rem;
       background: rgba(255, 255, 255, 0.95);
       box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
       opacity: 0;
       width: 0.26rem;
-      transform: translate(-50%, 2px) scale(0.72);
+      transform: translate(-50%, 1px) scale(0.72);
       transition: opacity 160ms ease, transform 220ms cubic-bezier(0.22, 0.61, 0.36, 1), width 220ms cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 220ms ease;
     }
   }
@@ -352,11 +392,11 @@ border: 1px solid rgba(255, 255, 255, 0.18);
   }
 
   .window-header {
-    @apply flex items-center justify-between px-4 py-3 rounded-t-lg bg-white border-b border-white select-none text-sm text-gray-400;
+    @apply flex items-center justify-between px-4 py-3 rounded-t-4xl bg-white border-b border-white select-none text-sm text-gray-400;
   }
 
   #safari {
-    @apply w-4xl absolute top-40 left-2/12 bg-white shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
+    @apply w-4xl absolute top-40 left-2/12 bg-white shadow-2xl drop-shadow-2xl rounded-4xl overflow-hidden;
 
     .window-header {
       @apply bg-white border-b border-white px-4 py-2;
@@ -414,7 +454,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
         @apply grid grid-cols-12 gap-5;
 
         img {
-          @apply col-span-3 w-full h-24 rounded-md object-cover;
+          @apply col-span-3 w-full h-24 rounded-xl object-cover;
         }
 
         .content {
@@ -496,7 +536,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
   }
 
   #terminal {
-    @apply w-xl absolute top-32 left-1/12 bg-white shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
+    @apply w-xl absolute top-32 left-1/12 bg-white shadow-2xl drop-shadow-2xl rounded-4xl overflow-hidden;
 
     h2 {
       @apply font-bold text-sm text-center w-full;
@@ -542,7 +582,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
   }
 
   #contact {
-    @apply max-w-2xl absolute top-60 left-5/12 bg-white shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
+    @apply max-w-2xl absolute top-60 left-5/12 bg-white shadow-2xl drop-shadow-2xl rounded-4xl overflow-hidden;
 
     h2 {
       @apply font-bold text-sm text-center w-full;
@@ -570,7 +610,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
   }
 
   #photos {
-    @apply max-w-3xl absolute top-96 left-1/2 -translate-y-1/2 bg-white shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
+    @apply max-w-3xl absolute top-96 left-1/2 -translate-y-1/2 bg-white shadow-2xl drop-shadow-2xl rounded-4xl overflow-hidden;
 
     .sidebar {
       @apply w-3/12 flex-none bg-gray-50 border-r border-gray-200 flex flex-col p-5;
@@ -630,7 +670,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
   }
 
   #resume {
-    @apply absolute top-16 bg-white shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
+    @apply absolute top-16 bg-white shadow-2xl drop-shadow-2xl rounded-4xl overflow-hidden;
     left: calc((100vw - min(92vw, 920px)) / 2);
     width: min(92vw, 920px);
     height: min(calc(100vh - 6rem), 920px);
@@ -645,7 +685,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
   }
 
   #map {
-    @apply absolute top-24 bg-white shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
+    @apply absolute top-24 bg-white shadow-2xl drop-shadow-2xl rounded-4xl overflow-hidden;
     left: calc((100vw - min(92vw, 980px)) / 2);
     width: min(92vw, 980px);
     height: min(calc(100vh - 7rem), 720px);
@@ -660,12 +700,18 @@ border: 1px solid rgba(255, 255, 255, 0.18);
 
     .map-shell {
       @apply relative flex-1 min-h-0;
+
+      &.is-3d {
+        background: radial-gradient(circle at 50% 20%, rgba(20, 20, 28, 0.18), rgba(8, 10, 18, 0.36));
+      }
     }
 
     .map-canvas {
       @apply w-full h-full;
       min-height: 360px;
     }
+
+    
 
     .map-frame {
       border: 0;
@@ -681,6 +727,52 @@ border: 1px solid rgba(255, 255, 255, 0.18);
         @apply inline-flex mt-3 rounded-md px-3 py-1.5 text-sm font-medium;
         background: #0d6efd;
         color: #fff;
+      }
+    }
+
+    .map-mode-switch {
+      @apply absolute top-3 right-3 z-20 inline-flex gap-1 p-1 rounded-4xl;
+      background: rgba(12, 16, 28, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px) saturate(130%);
+      -webkit-backdrop-filter: blur(10px) saturate(130%);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+    }
+
+    .map-mode-btn {
+      @apply px-3 py-1.5 text-xs font-semibold rounded-4xl transition-all;
+      color: rgba(255, 255, 255, 0.82);
+      background: transparent;
+      border: 1px solid transparent;
+
+      &:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      &.is-active {
+        color: #0b1220;
+        background: linear-gradient(180deg, #f5fbff, #d3e6ff);
+        border-color: rgba(255, 255, 255, 0.45);
+        box-shadow: 0 6px 16px rgba(12, 82, 190, 0.35);
+      }
+    }
+
+    .map-native-controls {
+      > div {
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: rgba(12, 16, 28, 0.58);
+        backdrop-filter: blur(10px) saturate(130%);
+        -webkit-backdrop-filter: blur(10px) saturate(130%);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+      }
+
+      button {
+        color: #f8fbff;
+      }
+
+      button:hover {
+        background: rgba(255, 255, 255, 0.12);
       }
     }
   }
