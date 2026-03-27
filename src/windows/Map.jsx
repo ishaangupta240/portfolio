@@ -75,6 +75,7 @@ const MapView = () => {
               type="button"
               className={`map-mode-btn ${mode === '2d' ? 'is-active' : ''}`}
               onClick={() => setMode('2d')}
+              aria-pressed={mode === '2d'}
             >
               2D
             </button>
@@ -82,6 +83,7 @@ const MapView = () => {
               type="button"
               className={`map-mode-btn ${mode === '3d' ? 'is-active' : ''}`}
               onClick={() => setMode('3d')}
+              aria-pressed={mode === '3d'}
             >
               3D
             </button>

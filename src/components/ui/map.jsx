@@ -252,34 +252,20 @@ const Map = forwardRef(function Map(
     currentStyleRef.current = newStyle;
     setIsStyleLoaded(false);
 
-    // Apply style safely: if `newStyle` is a URL, fetch and validate JSON
     const applyStyle = async () => {
-      try {
-        if (typeof newStyle === "string") {
-          const res = await fetch(newStyle);
-          if (!res.ok) throw new Error(`Failed to fetch style: ${res.status}`);
-          const styleJson = await res.json();
-          mapInstance.setStyle(styleJson, { diff: true });
-        } else {
-          mapInstance.setStyle(newStyle, { diff: true });
-        }
-      } catch (err) {
-        console.error("Failed to apply map style:", newStyle, err);
-        // Fallback to light default style
-        try {
-          const fallback = mapStyles.light ?? defaultStyles.light;
-          if (typeof fallback === "string") {
-            const res2 = await fetch(fallback);
-            const fallbackJson = await res2.json();
-            mapInstance.setStyle(fallbackJson, { diff: true });
-          } else {
-            mapInstance.setStyle(fallback, { diff: true });
-          }
-        } catch (err2) {
-          console.error("Failed to apply fallback map style:", err2);
-        }
-      }
-    };
+  try {
+    mapInstance.setStyle(newStyle, { diff: true });
+  } catch (err) {
+    console.error("Failed to apply map style:", newStyle, err);
+
+    try {
+      const fallback = mapStyles.light ?? defaultStyles.light;
+      mapInstance.setStyle(fallback, { diff: true });
+    } catch (err2) {
+      console.error("Failed to apply fallback map style:", err2);
+    }
+  }
+};
 
     applyStyle();
   }, [mapInstance, resolvedTheme, mapStyles, clearStyleTimeout]);
@@ -672,23 +658,39 @@ function MapControls({
 
   const handleLocate = useCallback(() => {
     setWaitingForLocation(true);
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        const coords = {
-          longitude: pos.coords.longitude,
-          latitude: pos.coords.latitude,
-        };
-        map?.flyTo({
-          center: [coords.longitude, coords.latitude],
-          zoom: 14,
-          duration: 1500,
-        });
-        onLocate?.(coords);
+    try {
+      if (!("geolocation" in navigator)) {
+        console.warn("Geolocation is not supported by this browser.");
         setWaitingForLocation(false);
-      }, (error) => {
-        console.error("Error getting location:", error);
-        setWaitingForLocation(false);
-      });
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const coords = {
+            longitude: pos.coords.longitude,
+            latitude: pos.coords.latitude,
+          };
+          try {
+            map?.flyTo({
+              center: [coords.longitude, coords.latitude],
+              zoom: 14,
+              duration: 1500,
+            });
+          } catch (err) {
+            console.error("Error flying to location:", err);
+          }
+          onLocate?.(coords);
+          setWaitingForLocation(false);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          setWaitingForLocation(false);
+        }
+      );
+    } catch (err) {
+      console.error("Unexpected error in handleLocate:", err);
+      setWaitingForLocation(false);
     }
   }, [map, onLocate]);
 
@@ -938,14 +940,24 @@ function MapRoute({
 
   // When coordinates change, update the source data
   useEffect(() => {
-    if (!isLoaded || !map || coordinates.length < 2) return;
+    if (!isLoaded || !map) return;
 
     const source = map.getSource(sourceId);
-    if (source) {
+    if (!source) return;
+
+    // If we have a valid coordinates array (2+ points), set the LineString.
+    // Otherwise clear the source data so any previous route is removed.
+    if (Array.isArray(coordinates) && coordinates.length >= 2) {
       source.setData({
         type: "Feature",
         properties: {},
         geometry: { type: "LineString", coordinates },
+      });
+    } else {
+      // Clear geometry by setting an empty FeatureCollection
+      source.setData({
+        type: "FeatureCollection",
+        features: [],
       });
     }
   }, [isLoaded, map, coordinates, sourceId]);
@@ -1113,13 +1125,19 @@ function MapClusterLayer(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, map, sourceId]);
 
-  // Update source data when data prop changes (only for non-URL data)
+  // Update source data when `data` prop changes (supports GeoJSON objects and URL strings)
   useEffect(() => {
-    if (!isLoaded || !map || typeof data === "string") return;
+    if (!isLoaded || !map) return;
 
     const source = map.getSource(sourceId);
-    if (source) {
+    if (!source) return;
+
+    // Allow both GeoJSON objects and URL strings to be passed through to the source.
+    try {
       source.setData(data);
+    } catch (err) {
+      // Log and ignore; MapLibre may throw if the data is invalid or not yet ready.
+      console.error(`Failed to set source data for ${sourceId}:`, err);
     }
   }, [isLoaded, map, data, sourceId]);
 
