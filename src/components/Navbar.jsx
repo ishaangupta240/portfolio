@@ -6,6 +6,7 @@ import { navIcons, navLinks } from '#constants';
 import { useWindowStore } from '#store/window';
 
 const THEME_STORAGE_KEY = 'portfolio-theme-mode'
+const CONTROL_PANEL_TRANSITION_MS = 170
 
 const SF_SYMBOL_CODEPOINTS = {
   // existing
@@ -123,6 +124,7 @@ const Navbar = () => {
   const { openWindow, closeWindow, windows } = useWindowStore()
   const [now, setNow] = useState(dayjs())
   const [isControlPanelOpen, setIsControlPanelOpen] = useState(false)
+  const [isControlPanelMounted, setIsControlPanelMounted] = useState(false)
   const [themeMode, setThemeMode] = useState(getInitialThemeMode)
   const [displayLevel, setDisplayLevel] = useState(78)
   const [volumeLevel, setVolumeLevel] = useState(64)
@@ -135,10 +137,55 @@ const Navbar = () => {
   })
   const controlPanelRef = useRef(null)
   const controlPanelButtonRef = useRef(null)
+  const closeControlPanelTimerRef = useRef(null)
+
+  const openControlPanel = useCallback(() => {
+    if (closeControlPanelTimerRef.current) {
+      window.clearTimeout(closeControlPanelTimerRef.current)
+      closeControlPanelTimerRef.current = null
+    }
+
+    setIsControlPanelMounted(true)
+    setIsControlPanelOpen(true)
+  }, [])
+
+  const closeControlPanel = useCallback(() => {
+    setIsControlPanelOpen(false)
+  }, [])
 
   const toggleControlPanel = useCallback(() => {
-    setIsControlPanelOpen((prev) => !prev)
-  }, [])
+    if (isControlPanelOpen) {
+      closeControlPanel()
+      return
+    }
+
+    openControlPanel()
+  }, [closeControlPanel, isControlPanelOpen, openControlPanel])
+
+  useEffect(() => {
+    if (isControlPanelOpen) {
+      setIsControlPanelMounted(true)
+      if (closeControlPanelTimerRef.current) {
+        window.clearTimeout(closeControlPanelTimerRef.current)
+        closeControlPanelTimerRef.current = null
+      }
+      return undefined
+    }
+
+    if (!isControlPanelMounted) return undefined
+
+    closeControlPanelTimerRef.current = window.setTimeout(() => {
+      setIsControlPanelMounted(false)
+      closeControlPanelTimerRef.current = null
+    }, CONTROL_PANEL_TRANSITION_MS)
+
+    return () => {
+      if (closeControlPanelTimerRef.current) {
+        window.clearTimeout(closeControlPanelTimerRef.current)
+        closeControlPanelTimerRef.current = null
+      }
+    }
+  }, [isControlPanelMounted, isControlPanelOpen])
 
   const toggleThemeMode = useCallback(() => {
     setThemeMode((prev) => (prev === 'dark' ? 'light' : 'dark'))
@@ -173,12 +220,12 @@ const Navbar = () => {
       const target = event.target
 
       if (panel?.contains(target) || trigger?.contains(target)) return
-      setIsControlPanelOpen(false)
+      closeControlPanel()
     }
 
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
-        setIsControlPanelOpen(false)
+        closeControlPanel()
       }
     }
 
@@ -189,7 +236,16 @@ const Navbar = () => {
       document.removeEventListener('pointerdown', handlePointerDown)
       document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [isControlPanelOpen])
+  }, [closeControlPanel, isControlPanelOpen])
+
+  useEffect(() => {
+    return () => {
+      if (closeControlPanelTimerRef.current) {
+        window.clearTimeout(closeControlPanelTimerRef.current)
+        closeControlPanelTimerRef.current = null
+      }
+    }
+  }, [])
 
   useEffect(() => {
     const defs = document.getElementById('svg-defs')
@@ -505,26 +561,39 @@ const Navbar = () => {
         <ul className='menu-icons'>
             {navIcons.map(({id, img}) => {
                 const isControlCenter = id === 4
+                const iconClassName = `menu-icon-btn liquid-glass ${isControlCenter ? 'is-control-center' : ''} ${isControlCenter && isControlPanelOpen ? 'is-active' : ''}`
 
                 return (
                   <li key={id} className='menu-icon-item'>
-                    <button
-                      type='button'
-                      className={`menu-icon-btn liquid-glass ${isControlCenter ? 'is-control-center' : ''} ${isControlCenter && isControlPanelOpen ? 'is-active' : ''}`}
-                      onClick={isControlCenter ? toggleControlPanel : undefined}
-                      aria-label={isControlCenter ? 'Open control panel' : `status-icon-${id}`}
-                      aria-haspopup={isControlCenter ? 'dialog' : undefined}
-                      aria-expanded={isControlCenter ? isControlPanelOpen : undefined}
-                      ref={isControlCenter ? controlPanelButtonRef : undefined}
-                    >
-                      <img src={img} className="icon" alt={`icon-${id}`} />
-                    </button>
+                    {isControlCenter ? (
+                      <button
+                        type='button'
+                        className={iconClassName}
+                        onClick={toggleControlPanel}
+                        aria-label={isControlPanelOpen ? 'Close control panel' : 'Open control panel'}
+                        aria-haspopup='dialog'
+                        aria-expanded={isControlPanelOpen}
+                        ref={controlPanelButtonRef}
+                      >
+                        <img src={img} className="icon" alt='Control center' />
+                      </button>
+                    ) : (
+                      <span
+                        className={iconClassName}
+                        role='img'
+                        aria-hidden='true'
+                        tabIndex={-1}
+                      >
+                        <img src={img} className="icon" alt='' aria-hidden='true' />
+                      </span>
+                    )}
 
-                    {isControlCenter && isControlPanelOpen && (
+                    {isControlCenter && isControlPanelMounted && (
                       <div
-                        className='control-center-panel'
+                        className={`control-center-panel ${isControlPanelOpen ? 'is-open' : 'is-closing'}`}
                         role='dialog'
                         aria-label='Control panel'
+                        aria-hidden={!isControlPanelOpen}
                         ref={controlPanelRef}
                       >
                         <div className='cc-main-grid'>

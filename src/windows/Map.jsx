@@ -108,7 +108,7 @@ const FEATURED_PLACES = [
     lat: 28.5494,
     lng: 77.2001,
     zoom: 15,
-    emoji: '☕',
+    emoji: '🥐',
   },
 ]
 
@@ -177,6 +177,13 @@ const MapSearch = ({ places, onSelect }) => {
   const [query, setQuery] = useState('')
   const [focused, setFocused] = useState(false)
   const inputRef = useRef(null)
+  const dropdownRef = useRef(null)
+
+  const handleSelectPlace = useCallback((place) => {
+    onSelect(place)
+    setQuery(place.name)
+    setFocused(false)
+  }, [onSelect])
 
   const results = useMemo(() => {
     if (!query.trim()) return places.slice(0, 6)
@@ -198,15 +205,23 @@ const MapSearch = ({ places, onSelect }) => {
           type="text"
           className="map-search-input"
           placeholder="Search Maps"
+          aria-label="Search maps"
           value={query}
           onChange={e => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
-          onBlur={() => setTimeout(() => setFocused(false), 200)}
+          onBlur={(event) => {
+            const nextFocused = event.relatedTarget
+            if (nextFocused instanceof HTMLElement && dropdownRef.current?.contains(nextFocused)) {
+              return
+            }
+            setFocused(false)
+          }}
         />
         {query && (
           <button
             type="button"
             className="map-search-clear"
+            aria-label="Clear search"
             onClick={() => {
               setQuery('')
               inputRef.current?.focus()
@@ -217,16 +232,19 @@ const MapSearch = ({ places, onSelect }) => {
         )}
       </div>
       {showDropdown && (
-        <div className="map-search-dropdown liquid-glass-static map-liquid-surface">
+        <div ref={dropdownRef} className="map-search-dropdown liquid-glass-static map-liquid-surface">
           {results.map(place => (
             <button
               key={place.id}
               type="button"
               className="map-search-result"
-              onMouseDown={() => {
-                onSelect(place)
-                setQuery(place.name)
-                setFocused(false)
+              onMouseDown={() => handleSelectPlace(place)}
+              onClick={() => handleSelectPlace(place)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  handleSelectPlace(place)
+                }
               }}
             >
               <span className="map-search-result-emoji" aria-hidden="true">{place.emoji ?? '📍'}</span>
