@@ -8,9 +8,22 @@ const MAP_STYLES = {
   '3d': 'https://tiles.openfreemap.org/styles/liberty',
 }
 
+const THEME_STORAGE_KEY = 'portfolio-theme-mode'
+
 const getThemeFromDocument = () => {
   if (typeof document === 'undefined') return 'light'
-  return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'
+
+  const datasetTheme = document.documentElement.dataset.theme
+  if (datasetTheme === 'dark' || datasetTheme === 'light') return datasetTheme
+
+  try {
+    const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY)
+    if (storedTheme === 'dark' || storedTheme === 'light') return storedTheme
+  } catch {
+    // Fall back to light if storage is unavailable.
+  }
+
+  return 'light'
 }
 
 const LIBRARY_PLACES = [
@@ -333,6 +346,7 @@ const MapView = () => {
   const longitude = defaultPlace.lng
 
   const mapRef = useRef(null)
+  const locateToastTimerRef = useRef(null)
   const compassButtonRef = useRef(null)
   const compassDragRef = useRef({
     active: false,
@@ -349,6 +363,7 @@ const MapView = () => {
   const [pitch, setPitch] = useState(0)
   const [isCompassDragging, setIsCompassDragging] = useState(false)
   const [isLocating, setIsLocating] = useState(false)
+  const [locateMessage, setLocateMessage] = useState('')
   const [activePlace, setActivePlace] = useState(defaultPlace)
   const [dynamicPlaces, setDynamicPlaces] = useState([])
   const [mapTheme, setMapTheme] = useState(getThemeFromDocument)
@@ -568,6 +583,28 @@ const MapView = () => {
     if (map) map.zoomTo(map.getZoom() - 1, { duration: 300 })
   }, [])
 
+  const showLocateMessage = useCallback((message) => {
+    setLocateMessage(message)
+
+    if (locateToastTimerRef.current) {
+      window.clearTimeout(locateToastTimerRef.current)
+    }
+
+    locateToastTimerRef.current = window.setTimeout(() => {
+      setLocateMessage('')
+      locateToastTimerRef.current = null
+    }, 3200)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (locateToastTimerRef.current) {
+        window.clearTimeout(locateToastTimerRef.current)
+        locateToastTimerRef.current = null
+      }
+    }
+  }, [])
+
   const handleLocate = useCallback(() => {
     if (!navigator.geolocation || isLocating) return
 
@@ -587,16 +624,19 @@ const MapView = () => {
         focusPlace(nearby)
         setDynamicPlaces(prev => [nearby, ...prev.filter(place => place.id !== nearby.id)])
         setIsLocating(false)
+        setLocateMessage('')
       },
-      () => {
+      (error) => {
         setIsLocating(false)
+        console.error('Geolocation error', error)
+        showLocateMessage(error?.message || 'Unable to find your location right now.')
       },
       {
         enableHighAccuracy: true,
         timeout: 9000,
       },
     )
-  }, [focusPlace, isLocating])
+  }, [focusPlace, isLocating, showLocateMessage])
 
   return (
     <>
@@ -707,6 +747,12 @@ const MapView = () => {
               <LocateIcon loading={isLocating} />
             </button>
           </div>
+
+          {locateMessage && (
+            <div className="map-locate-toast" role="status" aria-live="polite">
+              {locateMessage}
+            </div>
+          )}
 
           <div className="map-right-controls">
             <div
