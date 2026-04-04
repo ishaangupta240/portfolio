@@ -52,11 +52,7 @@ const MapView = () => {
             ref={mapRef}
             center={[longitude, latitude]}
             zoom={initialZoom}
-            maxBounds={maxBounds}
-            dragRotate={false}
             projection="mercator"
-            pitchWithRotate={false}
-            touchPitch={false}
             styles={selectedStyle ? { light: selectedStyle, dark: selectedStyle } : undefined}
             theme="dark"
           >
