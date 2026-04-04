@@ -158,11 +158,13 @@ html[data-theme='light'] {
       position: relative;
 
       .menu-icon-item {
+
         position: relative;
         list-style: none;
       }
 
       .menu-icon-btn {
+
         @apply size-6 rounded-4xl flex items-center justify-center transition-all duration-100;
         @apply appearance-none border-0 bg-transparent p-0 m-0 leading-none;
         cursor: default;

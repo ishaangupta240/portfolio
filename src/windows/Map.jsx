@@ -606,7 +606,12 @@ const MapView = () => {
   }, [])
 
   const handleLocate = useCallback(() => {
-    if (!navigator.geolocation || isLocating) return
+    if (!navigator.geolocation) {
+      showLocateMessage('Geolocation is not supported or not available in this context.')
+      return
+    }
+
+    if (isLocating) return
 
     setIsLocating(true)
     navigator.geolocation.getCurrentPosition(
