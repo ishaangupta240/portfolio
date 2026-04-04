@@ -789,12 +789,12 @@ const MapView = () => {
             </div>
 
             <div className="map-ctrl-group liquid-glass-static map-liquid-surface">
-              <button type="button" className="map-ctrl-btn" onClick={handleZoomIn} title="Zoom in">
+              <button type="button" className="map-ctrl-btn" onClick={handleZoomIn} title="Zoom in" aria-label="Zoom in">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                   <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
                 </svg>
               </button>
-              <button type="button" className="map-ctrl-btn" onClick={handleZoomOut} title="Zoom out">
+              <button type="button" className="map-ctrl-btn" onClick={handleZoomOut} title="Zoom out" aria-label="Zoom out">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                   <line x1="5" y1="12" x2="19" y2="12" />
                 </svg>

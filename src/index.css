@@ -88,6 +88,7 @@ html[data-theme='light'] {
     border-bottom: none;
     box-shadow: none;
 
+    /* `.is-control-panel-open` uses z-index `2147483640` so the control panel stays above all UI (including modals/third-party layers); this is intentionally near the 32-bit signed int max to reduce stacking conflicts. */
     &.is-control-panel-open {
       z-index: 2147483640;
     }
@@ -158,13 +159,11 @@ html[data-theme='light'] {
       position: relative;
 
       .menu-icon-item {
-
         position: relative;
         list-style: none;
       }
 
       .menu-icon-btn {
-
         @apply size-6 rounded-4xl flex items-center justify-center transition-all duration-100;
         @apply appearance-none border-0 bg-transparent p-0 m-0 leading-none;
         cursor: default;
