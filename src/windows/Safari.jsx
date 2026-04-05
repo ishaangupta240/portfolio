@@ -1,9 +1,47 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import WindowWrapper from '#hoc/WindowWrapper'
 import WindowControls from '#components/WindowControls'
 import { blogPosts } from '#constants'
 
+const SAFARI_TOOLBAR_ASSETS = {
+  light: {
+    pull: '/icons/Pull%20Down%20Button%20Light.png',
+    segment: '/icons/Segmented%20Control%20Light.png',
+    search: '/icons/Search%20Bar%20Light.png',
+    nav: '/icons/Button%20Group%20Light.png',
+  },
+  dark: {
+    pull: '/icons/Pull%20Down%20Button.png',
+    segment: '/icons/Segmented%20Control.png',
+    search: '/icons/Search%20Bar.png',
+    nav: '/icons/Button%20Group.png',
+  },
+}
+
+const getThemeFromDocument = () => {
+  if (typeof document === 'undefined') return 'light'
+  return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'
+}
+
 const Safari = () => {
+  const [theme, setTheme] = useState(getThemeFromDocument)
+  const toolbarAssets = theme === 'dark' ? SAFARI_TOOLBAR_ASSETS.dark : SAFARI_TOOLBAR_ASSETS.light
+
+  useEffect(() => {
+    const root = document.documentElement
+    const syncTheme = () => {
+      setTheme(root.dataset.theme === 'dark' ? 'dark' : 'light')
+    }
+
+    syncTheme()
+    const observer = new MutationObserver(syncTheme)
+    observer.observe(root, { attributes: true, attributeFilter: ['data-theme'] })
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
+
   return (
     <>
       <div className="window-header">
@@ -11,27 +49,27 @@ const Safari = () => {
           <div className="safari-toolbar-left">
             <WindowControls target="safari"/>
             <img
-              src="/icons/Pull%20Down%20Button%20Light.svg"
+              src={toolbarAssets.pull}
               alt="Options"
               className="toolbar-icon toolbar-pull"
             />
             
             <img
-              src="/icons/Segmented%20Control%20Light.svg"
+              src={toolbarAssets.segment}
               alt="View controls"
               className="toolbar-icon toolbar-segment"
             />
           </div>
 
           <img
-            src="/icons/Search%20Bar%20Light.svg"
+            src={toolbarAssets.search}
             alt="Address bar"
             className="toolbar-search"
           />
 
           <div className="safari-toolbar-right">
             <img
-              src="/icons/Button%20Group%20Light.svg"
+              src={toolbarAssets.nav}
               alt="Navigation controls"
               className="toolbar-icon toolbar-nav"
             />

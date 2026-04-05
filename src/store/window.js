@@ -12,6 +12,7 @@ export const useWindowStore = create(immer((set) => ({
         win.isOpen = true
         win.isRunning = true
         win.deferClose = false
+        win.deferMinimize = false
         win.zIndex = state.nextZIndex
         win.data = data ?? win.data
         state.nextZIndex ++
@@ -23,15 +24,26 @@ export const useWindowStore = create(immer((set) => ({
         win.isRunning = false
         win.isMaximized = false
         win.deferClose = false
+        win.deferMinimize = false
         win.zIndex = INITIAL_Z_INDEX
         win.data = null
     }),
     minimizeWindow: (windowKey) => set((state) => {
         const win = state.windows[windowKey]
         if (!win) return
+
+        if (win.isOpen && win.isMaximized) {
+            win.isMaximized = false
+            win.deferClose = false
+            win.deferMinimize = true
+            win.zIndex = state.nextZIndex++
+            return
+        }
+
         win.isOpen = false
         win.isMaximized = false
         win.deferClose = false
+        win.deferMinimize = false
     }),
     requestCloseWindow: (windowKey) => set((state) => {
         const win = state.windows[windowKey]
@@ -40,6 +52,7 @@ export const useWindowStore = create(immer((set) => ({
         if (win.isOpen && win.isMaximized) {
             win.isMaximized = false
             win.deferClose = true
+            win.deferMinimize = false
             win.zIndex = state.nextZIndex++
             return
         }
@@ -48,6 +61,7 @@ export const useWindowStore = create(immer((set) => ({
         win.isRunning = false
         win.isMaximized = false
         win.deferClose = false
+        win.deferMinimize = false
         win.zIndex = INITIAL_Z_INDEX
         win.data = null
     }),
@@ -56,6 +70,7 @@ export const useWindowStore = create(immer((set) => ({
         if (!win || !win.isOpen) return
         win.isMaximized = !win.isMaximized
         win.deferClose = false
+        win.deferMinimize = false
         win.zIndex = state.nextZIndex++
     }),
     focusWindow: (windowKey) => set((state) => {

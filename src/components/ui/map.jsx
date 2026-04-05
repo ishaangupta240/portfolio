@@ -162,16 +162,18 @@ const Map = forwardRef(function Map(
       resolvedTheme === "dark" ? mapStyles.dark : mapStyles.light;
     currentStyleRef.current = initialStyle;
 
+    const { attributionControl: _ignoredAttributionControl, ...mapProps } = props;
+
     const map = new MapLibreGL.Map({
       container: containerRef.current,
       style: initialStyle,
       renderWorldCopies: false,
-      attributionControl: {
-        compact: true,
-      },
-      ...props,
+      ...mapProps,
       ...viewport,
+      attributionControl: false,
     });
+
+    map.addControl(new MapLibreGL.AttributionControl({ compact: false }), 'bottom-right');
 
     const styleDataHandler = () => {
       clearStyleTimeout();

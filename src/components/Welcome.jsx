@@ -9,47 +9,83 @@ const FONT_WEIGHT ={
 
 const renderText = (text, className, baseWeight = 400) => {
     return [...text].map((char, i) => (
-        <span key={i} className={className} style={{ fontVariationSettings: `"wght" ${baseWeight}` }}>
+        <span key={i} className={className} style={{ '--wght': baseWeight, fontVariationSettings: '"wght" var(--wght)' }}>
             {char === ' ' ? '\u00A0' : char}
         </span>
     ))
 }
 
 const setupTextHover = (container, type) => {
-    if (!container) return;
+    if (!container) return
 
-    const letters = container.querySelectorAll('span');
+    const letters = Array.from(container.querySelectorAll('span'))
     const { min, max, default: defaultWeight } = FONT_WEIGHT[type]
+    const sigma = type === 'subtitle' ? 98 : 78
+    let containerLeft = 0
 
-    const animateLetters = (letter, weight, duration = 0.25) => {
-        return gsap.to(letter, {
-            duration, 
-            ease: 'power2.out', 
-            fontVariationSettings: `"wght" ${weight}`,
+    const letterData = letters.map((letter) => {
+        letter.style.setProperty('--wght', String(defaultWeight))
+
+        return {
+            letter,
+            centerX: 0,
+            isWhitespace: (letter.textContent || '').trim() === '',
+            toWeight: gsap.quickTo(letter, '--wght', {
+                duration: type === 'subtitle' ? 0.2 : 0.22,
+                ease: 'power3.out',
+            }),
+        }
+    })
+
+    const recalcCenters = () => {
+        const containerRect = container.getBoundingClientRect()
+        containerLeft = containerRect.left
+
+        letterData.forEach((entry) => {
+            const rect = entry.letter.getBoundingClientRect()
+            entry.centerX = rect.left - containerLeft + rect.width / 2
         })
     }
-    
+
+    recalcCenters()
+
     const handleMouseMove = (e) => {
-        const { left } = container.getBoundingClientRect();
-        const mouseX = e.clientX - left;
+        const mouseX = e.clientX - containerLeft
 
-        letters.forEach(letter => {
-            const {left: l, width: w} = letter.getBoundingClientRect();
-            const distance = Math.abs(mouseX - (l - left +w/2));
-            const intensity = Math.exp(-(distance**2) / 10000);
+        letterData.forEach((entry) => {
+            if (entry.isWhitespace) return
 
-            animateLetters(letter, min + (max - min) * intensity);
+            const distance = Math.abs(mouseX - entry.centerX)
+            const intensity = Math.exp(-(distance * distance) / (2 * sigma * sigma))
+            entry.toWeight(min + (max - min) * intensity)
         })
     }
+
     const handleMouseLeave = () => {
-        letters.forEach(letter => animateLetters(letter, defaultWeight, 0.3))
+        letterData.forEach((entry) => {
+            if (entry.isWhitespace) return
+            entry.toWeight(defaultWeight)
+        })
     }
+
+    const handleMouseEnter = () => {
+        recalcCenters()
+    }
+
+    const handleResize = () => {
+        recalcCenters()
+    }
+
+    container.addEventListener('mouseenter', handleMouseEnter)
     container.addEventListener('mousemove', handleMouseMove)
     container.addEventListener('mouseleave', handleMouseLeave)
+    window.addEventListener('resize', handleResize)
 
     return () => {
+        container.removeEventListener('mouseenter', handleMouseEnter)
         container.removeEventListener('mousemove', handleMouseMove)
         container.removeEventListener('mouseleave', handleMouseLeave)
+        window.removeEventListener('resize', handleResize)
     }
 }
 
