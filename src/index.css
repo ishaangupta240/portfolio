@@ -45,14 +45,12 @@ body {
 }
 
 html[data-theme='dark'] {
-  --desktop-overlay: linear-gradient(180deg, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0.62) 100%);
-  --tint-opacity: 0.11;
-  --shadow-color: rgba(175, 205, 255, 0.36);
+  --desktop-overlay: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 100%);
   --toolbar-icon-filter: none;
 }
 
 html[data-theme='light'] {
-  --desktop-overlay: linear-gradient(180deg, rgba(247, 253, 255, 0.12) 0%, rgba(208, 223, 244, 0.16) 100%);
+  --desktop-overlay: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 100%);
 
   #safari {
     .safari-toolbar {
@@ -155,15 +153,18 @@ html[data-theme='light'] {
     }
 
     .menu-icons {
+
       @apply flex items-center gap-1.5 max-sm:hidden;
       position: relative;
 
       .menu-icon-item {
+
         position: relative;
         list-style: none;
       }
 
       .menu-icon-btn {
+
         @apply size-6 rounded-4xl flex items-center justify-center transition-all duration-100;
         @apply appearance-none border-0 bg-transparent p-0 m-0 leading-none;
         cursor: default;
@@ -2565,19 +2566,6 @@ html[data-theme='dark'] {
     color: rgba(224, 236, 252, 0.92);
   }
 
-  #dock {
-    .dock-normal-glass {
-      background: #000000;
-      border-color: rgba(130, 149, 183, 0.34);
-      box-shadow: 0 10px 30px rgba(2, 8, 24, 0.42);
-    }
-
-    .running-dot {
-      background: rgba(174, 205, 255, 0.98);
-      box-shadow: 0 0 8px rgba(160, 196, 255, 0.86);
-    }
-  }
-
   #safari {
     .window-header {
       background: #000000;
@@ -2865,5 +2853,14 @@ html[data-theme='dark'] {
       color: rgba(255, 226, 226, 0.96);
       box-shadow: 0 12px 26px rgba(0, 0, 0, 0.42);
     }
+  }
+
+  #dock-tooltip.tooltip {
+    @apply !py-1 !px-2.5 !w-fit !text-center !text-[11px] !rounded-4xl !text-black/90;
+    background: rgba(255, 255, 255, 0.84) !important;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(15px) saturate(130%);
+    -webkit-backdrop-filter: blur(15px) saturate(130%);
+    box-shadow: 0 8px 20px rgba(22, 34, 56, 0.2);
   }
 }

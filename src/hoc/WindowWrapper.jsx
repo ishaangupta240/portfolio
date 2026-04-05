@@ -25,7 +25,7 @@ const toRectSnapshot = (rect) => ({
 
 const WindowWrapper = (Component, windowKey) => {
     const WrappedComponent = (props) => {
-        const { focusWindow, closeWindow, windows } = useWindowStore()
+        const { focusWindow, closeWindow, minimizeWindow, windows } = useWindowStore()
         const win = windows[windowKey]
         const isOpen = !!win?.isOpen
         const isMaximized = !!win?.isMaximized
@@ -213,6 +213,10 @@ const WindowWrapper = (Component, windowKey) => {
                     if (live?.deferClose && live?.isOpen && !live?.isMaximized) {
                         closeWindow(windowKey)
                     }
+
+                    if (live?.deferMinimize && live?.isOpen && !live?.isMaximized) {
+                        minimizeWindow(windowKey)
+                    }
                 },
             })
 
@@ -222,7 +226,7 @@ const WindowWrapper = (Component, windowKey) => {
             return () => {
                 fullscreenTweenRef.current?.kill()
             }
-        }, [isMaximized, isVisible, windowKey, closeWindow])
+        }, [isMaximized, isVisible, windowKey, closeWindow, minimizeWindow])
 
         useLayoutEffect(() => {
             const el = windowRef.current

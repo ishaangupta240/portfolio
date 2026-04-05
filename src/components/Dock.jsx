@@ -32,6 +32,13 @@ const Dock = () => {
     const dockEl = dockRef.current
     if (!dockEl) return
 
+    const requestLiquidGlassRebuild = () => {
+      window.dispatchEvent(new Event('liquid-glass:rebuild'))
+    }
+
+    requestAnimationFrame(() => requestAnimationFrame(requestLiquidGlassRebuild))
+    const liquidGlassSettleTimer = window.setTimeout(requestLiquidGlassRebuild, 980)
+
     const iconAnimators = iconRefs.current
       .filter(Boolean)
       .map((icon) => ({
@@ -134,6 +141,7 @@ const Dock = () => {
       dockEl.removeEventListener('pointermove', onPointerMove)
       dockEl.removeEventListener('pointerleave', onPointerLeave)
       window.removeEventListener('resize', onResize)
+      window.clearTimeout(liquidGlassSettleTimer)
       if (rafId) cancelAnimationFrame(rafId)
       resetDock()
     }
@@ -185,7 +193,7 @@ const Dock = () => {
             )
         })}
       </div>
-      <Tooltip id="dock-tooltip" place='top' offset={10} positionStrategy='fixed' className='tooltip' />
+      <Tooltip id="dock-tooltip" place='top' offset={10} positionStrategy='fixed' className='tooltip liquid-glass-static' />
     </section>
   )
 }

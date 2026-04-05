@@ -451,17 +451,32 @@ const Navbar = () => {
     }
 
     let resizeTimer
-    const onResize = () => {
+    const settleTimers = []
+
+    const scheduleRebuild = () => {
       clearTimeout(resizeTimer)
-      resizeTimer = setTimeout(rebuildFilter, 120)
+      resizeTimer = window.setTimeout(rebuildFilter, 120)
+    }
+
+    const onResize = () => {
+      scheduleRebuild()
+    }
+
+    const onLiquidGlassRebuildRequest = () => {
+      scheduleRebuild()
     }
 
     requestAnimationFrame(() => requestAnimationFrame(rebuildFilter))
+    settleTimers.push(window.setTimeout(rebuildFilter, 280))
+    settleTimers.push(window.setTimeout(rebuildFilter, 920))
     window.addEventListener('resize', onResize)
+    window.addEventListener('liquid-glass:rebuild', onLiquidGlassRebuildRequest)
 
     return () => {
       window.removeEventListener('resize', onResize)
+      window.removeEventListener('liquid-glass:rebuild', onLiquidGlassRebuildRequest)
       clearTimeout(resizeTimer)
+      settleTimers.forEach((timer) => window.clearTimeout(timer))
     }
   }, [])
 

@@ -192,6 +192,16 @@ const MapSearch = ({ places, onSelect }) => {
   const inputRef = useRef(null)
   const dropdownRef = useRef(null)
 
+  const handleSearchBlur = useCallback((event) => {
+    const nextFocused = event.relatedTarget
+    const keepFocused =
+      nextFocused instanceof HTMLElement &&
+      (dropdownRef.current?.contains(nextFocused) || inputRef.current === nextFocused)
+
+    if (keepFocused) return
+    setFocused(false)
+  }, [])
+
   const handleSelectPlace = useCallback((place) => {
     onSelect(place)
     setQuery(place.name)
@@ -207,7 +217,7 @@ const MapSearch = ({ places, onSelect }) => {
   const showDropdown = focused && results.length > 0
 
   return (
-    <div className="map-search-container">
+    <div className="map-search-container" onBlur={handleSearchBlur}>
       <div className={`map-search-bar liquid-glass-static map-liquid-surface ${focused ? 'is-focused' : ''}`}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="map-search-icon">
           <circle cx="11" cy="11" r="8" />
@@ -222,13 +232,6 @@ const MapSearch = ({ places, onSelect }) => {
           value={query}
           onChange={e => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
-          onBlur={(event) => {
-            const nextFocused = event.relatedTarget
-            if (nextFocused instanceof HTMLElement && dropdownRef.current?.contains(nextFocused)) {
-              return
-            }
-            setFocused(false)
-          }}
         />
         {query && (
           <button
@@ -762,25 +765,21 @@ const MapView = () => {
           <div className="map-right-controls">
             <div
               className={`map-ctrl-btn map-compass-btn map-compass-control mw-compass liquid-glass-static map-liquid-surface ${isCompassDragging ? 'is-dragging' : ''}`}
-              onWheel={handleCompassWheel}
-              onKeyDown={handleCompassKeyDown}
-              tabIndex={0}
-              title={`Compass, heading ${headingDegrees} degrees ${heading}`}
-              aria-label={`Compass heading ${headingDegrees} degrees ${heading}`}
-              aria-keyshortcuts="shift+alt+arrowup"
             >
               <button
                 ref={compassButtonRef}
                 type="button"
                 className="map-compass-action"
                 onClick={handleCompassClick}
+                onWheel={handleCompassWheel}
+                onKeyDown={handleCompassKeyDown}
                 onPointerDown={handleCompassPointerDown}
                 onPointerMove={handleCompassPointerMove}
                 onPointerUp={handleCompassPointerUp}
                 onPointerCancel={handleCompassPointerCancel}
                 onLostPointerCapture={handleCompassPointerCancel}
-                title={`Compass, heading ${headingDegrees} degrees ${heading}. Click to reset north.`}
-                aria-label={`Compass, heading ${headingDegrees} degrees ${heading}. Click to reset north.`}
+                title={`Compass, heading ${headingDegrees} degrees ${heading}. Click to reset north or use arrow keys to rotate.`}
+                aria-label={`Compass heading ${headingDegrees} degrees ${heading}. Click to reset north or use arrow keys to rotate.`}
                 aria-keyshortcuts="shift+alt+arrowup"
               >
                 <CompassIcon bearing={bearing} pitch={pitch} />
