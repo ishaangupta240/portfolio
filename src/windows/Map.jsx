@@ -244,6 +244,7 @@ function MapApp() {
           <div className="map-search-pill">
             <input
               placeholder="Search Maps"
+              aria-label="Search places"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onFocus={() => setSidebarOpen(true)}
@@ -291,8 +292,10 @@ function MapApp() {
 
             <div className="panel-content">
               {visiblePlaces.map((place) => (
-                <div
+                <button
                   key={place.id}
+                  type="button"
+                  aria-pressed={active?.id === place.id}
                   className={`panel-item ${active?.id === place.id ? "active" : ""}`}
                   onClick={() => focusPlace(place)}
                 >
@@ -302,7 +305,7 @@ function MapApp() {
                     <div className="panel-sub">{place.detail}</div>
                   </div>
                   <div className="panel-time">{place.eta}</div>
-                </div>
+                </button>
               ))}
             </div>
           </div>
@@ -363,7 +366,7 @@ function MapApp() {
               <div className="card-title">{active.name}</div>
               <div className="card-sub">{active.detail}</div>
             </div>
-            <button type="button" onClick={() => focusPlace(active)}>􀙟</button>
+            <button type="button" onClick={() => focusPlace(active)} aria-label={`Center map on ${active.name}`} title={`Center map on ${active.name}`}>􀙟</button>
           </div>
         )}
       </div>

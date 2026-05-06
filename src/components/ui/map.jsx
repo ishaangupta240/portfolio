@@ -47,13 +47,25 @@ export const Map = React.forwardRef(
 
     const accessToken = mapboxAccessToken || import.meta.env.VITE_MAPBOX_TOKEN
 
+    useEffect(() => {
+      if (!accessToken) {
+        console.warn('[Map] Missing Mapbox access token. The map canvas will remain empty until VITE_MAPBOX_TOKEN or mapboxAccessToken is provided.')
+        return
+      }
+
+      mapboxgl.accessToken = accessToken
+    }, [accessToken])
+
     // Keep forwarded ref in sync with the live map instance (do not freeze initial null).
     useImperativeHandle(ref, () => mapRef.current)
 
     useEffect(() => {
-      if (!containerRef.current || mapRef.current || !accessToken) return
+      if (!containerRef.current || mapRef.current) return
 
-      mapboxgl.accessToken = accessToken
+      if (!accessToken) {
+        console.warn('[Map] Skipping map initialization because no Mapbox access token is available.')
+        return
+      }
 
       const map = new mapboxgl.Map({
         container: containerRef.current,
@@ -209,7 +221,7 @@ export const MapMarker = ({
       marker.remove()
       markerRef.current = null
     }
-  }, [anchor, latitude, longitude, map, markerElement, offset])
+  }, [anchor, map, markerElement, offset])
 
   useEffect(() => {
     if (!markerRef.current) return
