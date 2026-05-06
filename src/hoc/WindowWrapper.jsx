@@ -1,9 +1,8 @@
 import React, { useLayoutEffect, useRef, useState } from 'react'
-import { gsap } from 'gsap'
-import { Draggable } from 'gsap/Draggable'
+import { gsap, Draggable, ensureDraggableRegistered } from '../lib/gsap'
 import { useWindowStore } from '#store/window'
 
-gsap.registerPlugin(Draggable)
+ensureDraggableRegistered()
 
 const SLIDE_END_FRACTION = 0.5
 const TRANSLATE_START_FRACTION = 0.4
