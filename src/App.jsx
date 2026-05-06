@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Dock, Navbar, Welcome } from '#components'
-import {gsap} from 'gsap'
-import { Draggable } from 'gsap/draggable'
-import { Terminal, Safari, Resume, Map } from '#windows';
-import BootLoader from '#components/BootLoader';
+import { ensureDraggableRegistered } from './lib/gsap'
+import { Terminal, Safari, Resume, Map } from '#windows'
+import BootLoader from '#components/BootLoader'
 import uiConfig from './config/ui.json'
-gsap.registerPlugin(Draggable);
+
+ensureDraggableRegistered()
 
 const App = () => {
   const [showBootLoader, setShowBootLoader] = useState(true)
