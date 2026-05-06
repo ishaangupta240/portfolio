@@ -11,8 +11,6 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-
-# Environments (CRITICAL)
 .env
 .env.local
 .env.development.local
