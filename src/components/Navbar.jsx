@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import dayjs from "dayjs/esm/index.js";
 import { gsap } from 'gsap'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'

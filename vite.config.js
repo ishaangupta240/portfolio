@@ -6,6 +6,15 @@ import { fileURLToPath } from 'url';
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  optimizeDeps: {
+    noDiscovery: true,
+    include: ['react', 'react-dom', 'react-dom/client', 'react/jsx-runtime', 'classnames', 'warning', 'dayjs', 'mapbox-gl'],
+  },
+  build: {
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
+  },
   resolve: {
     alias: {
       '@': resolve(dirname(fileURLToPath(import.meta.url)), 'src'),
