@@ -11,6 +11,8 @@ export default defineConfig({
     include: ['react', 'react-dom', 'react-dom/client', 'react/jsx-runtime', 'classnames', 'warning', 'dayjs', 'mapbox-gl'],
   },
   build: {
+    cssMinify: false,
+    
     commonjsOptions: {
       transformMixedEsModules: true,
     },
@@ -37,4 +39,7 @@ export default defineConfig({
       'gsap/draggable': 'gsap/Draggable',
     },
   },
+  css: {
+    transformer: 'postcss'
+  }
 })

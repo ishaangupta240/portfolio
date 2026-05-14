@@ -1,3 +1,5 @@
+@use "tailwindcss";
+
 @font-face {
   font-family: "SF Pro";
   src: url("/fonts/SF-Pro.ttf") format("truetype");
@@ -5,8 +7,6 @@
   font-style: normal;
   font-display: swap;
 }
-
-@import "tailwindcss";
 
 html,
 body {
@@ -45,6 +45,14 @@ body {
   --window-header-bg: rgba(248, 249, 252, 0.82);
   --window-header-border: rgba(0, 0, 0, 0.08);
   --window-header-text: rgba(31, 41, 55, 0.78);
+}
+
+@mixin glass-backdrop($value) {
+  -webkit-backdrop-filter: $value;
+
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: $value;
+  }
 }
 
 html[data-theme='dark'] {
@@ -295,8 +303,7 @@ html[data-theme='light'] {
         .cc-slider-card {
           background: rgba(255, 255, 255, 0);
           box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
+          @include glass-backdrop(blur(20px));
           @apply rounded-4xl;
         }
 
@@ -746,10 +753,7 @@ html[data-theme='light'] {
       inset: 0;
       z-index: -1;
       border-radius: inherit;
-      backdrop-filter: blur(11px) saturate(130%);
-      -webkit-backdrop-filter: blur(11px) saturate(130%);
-      backdrop-filter: var(--lg-filter);
-      -webkit-backdrop-filter: var(--lg-filter);
+      @include glass-backdrop(var(--lg-filter));
       opacity: 0;
       transition: opacity 120ms cubic-bezier(0.22, 0.61, 0.36, 1);
       pointer-events: none;
@@ -849,11 +853,10 @@ html[data-theme='light'] {
 
     .dock-normal-glass {
       background: rgba(255, 255, 255, 0.07);
-border-radius: 16px;
-box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-backdrop-filter: blur(9.2px);
--webkit-backdrop-filter: blur(9.2px);
-border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 16px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      @include glass-backdrop(blur(9.2px));
+      border: 1px solid rgba(255, 255, 255, 0.18);
     }
 
     .dock-item {
@@ -883,7 +886,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
     }
 
     .tooltip {
-      @apply !py-1 !px-2.5 !w-fit !text-center !text-[11px] !rounded-4xl !bg-white/100 !text-black/90;
+      @apply py-1 px-2.5 w-fit text-center text-[11px] rounded-4xl bg-white/100 text-black/90;
       backdrop-filter: blur(15px);
       -webkit-backdrop-filter: blur(15px);
     }
@@ -958,8 +961,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
   .window-header {
     @apply flex items-center justify-between px-4 py-3 rounded-t-4xl select-none text-sm;
     background: var(--window-header-bg);
-    backdrop-filter: blur(18px) saturate(165%);
-    -webkit-backdrop-filter: blur(18px) saturate(165%);
+    @include glass-backdrop(blur(18px) saturate(165%));
     border-bottom: 1px solid var(--window-header-border);
     color: var(--window-header-text);
   }
@@ -1341,8 +1343,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
       padding: 14px 12px 12px;
       border-right: 1px solid var(--map-panel-border);
       background: var(--map-panel-bg);
-      backdrop-filter: var(--lg-filter, blur(18px) saturate(140%));
-      -webkit-backdrop-filter: var(--lg-filter, blur(18px) saturate(140%));
+      @include glass-backdrop(var(--lg-filter, blur(18px) saturate(140%)));
       box-shadow: 1px 0 16px rgba(0, 0, 0, 0.18);
       transition: width 240ms cubic-bezier(0.2,0.9,0.2,1), background 200ms ease;
     }
@@ -1361,6 +1362,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
       background: var(--map-panel-bg);
       border: 1px solid var(--map-panel-border);
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 22px rgba(12,18,28,0.18);
+      @include glass-backdrop(var(--lg-filter, blur(18px) saturate(140%)));
       transition: border-color 160ms ease, box-shadow 160ms ease;
     }
 
@@ -1405,8 +1407,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
       border-radius: 12px;
       border: 1px solid var(--map-panel-border);
       background: var(--map-panel-bg);
-      backdrop-filter: var(--lg-filter, blur(16px) saturate(130%));
-      -webkit-backdrop-filter: var(--lg-filter, blur(16px) saturate(130%));
+      @include glass-backdrop(var(--lg-filter, blur(16px) saturate(130%)));
       box-shadow: 0 16px 34px rgba(12, 18, 28, 0.28);
       overflow: hidden;
       animation: map-dropdown-in 160ms cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -1705,8 +1706,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
       border-radius: 11px;
       background: var(--map-frost-bg);
       border: 1px solid var(--map-frost-border);
-      backdrop-filter: blur(14px) saturate(140%);
-      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      @include glass-backdrop(blur(14px) saturate(140%));
       box-shadow: 0 10px 24px rgba(27, 41, 63, 0.2);
     }
 
@@ -1743,8 +1743,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      backdrop-filter: blur(14px) saturate(140%);
-      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      @include glass-backdrop(blur(14px) saturate(140%));
       box-shadow: 0 10px 24px rgba(27, 41, 63, 0.2);
       transition: transform 120ms ease, background 120ms ease;
 
@@ -1787,8 +1786,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      backdrop-filter: blur(14px) saturate(140%);
-      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      @include glass-backdrop(blur(14px) saturate(140%));
       box-shadow: 0 10px 24px rgba(27, 41, 63, 0.2);
       transition: transform 120ms ease, background 120ms ease;
 
@@ -1872,8 +1870,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
       border-radius: 11px;
       border: 1px solid var(--map-frost-border);
       background: var(--map-frost-bg);
-      backdrop-filter: blur(14px) saturate(140%);
-      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      @include glass-backdrop(blur(14px) saturate(140%));
       box-shadow: 0 10px 24px rgba(27, 41, 63, 0.2);
 
       .map-ctrl-btn {
@@ -1906,8 +1903,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
       border: 1px solid rgba(255,255,255,0.04);
       background: rgba(10,12,14,0.64);
       color: var(--map-text-color);
-      backdrop-filter: blur(14px) saturate(120%);
-      -webkit-backdrop-filter: blur(14px) saturate(120%);
+      @include glass-backdrop(blur(14px) saturate(120%));
       box-shadow: 0 18px 38px rgba(0, 0, 0, 0.6);
     }
 
@@ -1991,8 +1987,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
       justify-content: center;
       font-size: 18px;
       line-height: 1;
-      backdrop-filter: blur(14px) saturate(145%);
-      -webkit-backdrop-filter: blur(14px) saturate(145%);
+      @include glass-backdrop(blur(14px) saturate(145%));
       box-shadow: 0 10px 22px rgba(20, 32, 54, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.7);
       transition: transform 140ms ease, box-shadow 140ms ease;
     }
@@ -2021,8 +2016,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      backdrop-filter: blur(12px) saturate(145%);
-      -webkit-backdrop-filter: blur(12px) saturate(145%);
+      @include glass-backdrop(blur(12px) saturate(145%));
       box-shadow: 0 7px 15px rgba(20, 32, 54, 0.18);
     }
 
@@ -2125,8 +2119,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
       border-radius: 999px;
       border: 1px solid var(--map-ui-border);
       background: var(--map-ui-bg);
-      backdrop-filter: blur(22px) saturate(145%);
-      -webkit-backdrop-filter: blur(22px) saturate(145%);
+      @include glass-backdrop(blur(22px) saturate(145%));
       box-shadow: var(--map-ui-shadow);
     }
 
@@ -2181,8 +2174,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
       width: 320px;
       border: 1px solid var(--map-ui-border);
       background: var(--map-ui-bg);
-      backdrop-filter: blur(28px) saturate(145%);
-      -webkit-backdrop-filter: blur(28px) saturate(145%);
+      @include glass-backdrop(blur(28px) saturate(145%));
       box-shadow: var(--map-ui-shadow);
       z-index: 25;
       transition: width 280ms cubic-bezier(0.2, 0.8, 0.2, 1), background 160ms ease;
@@ -2261,6 +2253,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
 
     .panel-item {
       padding: 11px 8px;
+      width: 100%;
       border-bottom: 1px solid var(--map-ui-border);
       cursor: pointer;
       display: grid;
@@ -2334,8 +2327,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
       border-radius: 999px;
       border: 1px solid var(--map-ui-border);
       background: var(--map-ui-bg-strong);
-      backdrop-filter: blur(25px) saturate(145%);
-      -webkit-backdrop-filter: blur(25px) saturate(145%);
+      @include glass-backdrop(blur(25px) saturate(145%));
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -2386,8 +2378,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
       border-radius: 999px;
       border: 1px solid rgba(255, 255, 255, 0.08);
       background: rgba(18, 24, 35, 0.82);
-      backdrop-filter: blur(20px) saturate(135%);
-      -webkit-backdrop-filter: blur(20px) saturate(135%);
+      @include glass-backdrop(blur(20px) saturate(135%));
       box-shadow: 0 12px 26px rgba(0, 0, 0, 0.32);
       margin-bottom: 2vh;
     }
@@ -2397,8 +2388,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
       border: 1px;
       background: rgba(18, 24, 35, 0.468);
       color: rgba(248, 250, 252, 0.95);
-      backdrop-filter: blur(20px) saturate(165%);
-      -webkit-backdrop-filter: blur(20px) saturate(165%);
+      @include glass-backdrop(blur(20px) saturate(165%));
       box-shadow: 0 12px 24px rgba(0, 0, 0, 0.28);
       cursor: pointer;
       transition: transform 120ms ease, background 120ms ease, color 120ms ease;
@@ -2745,8 +2735,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
     inset: 0;
     z-index: -1;
     border-radius: inherit;
-    backdrop-filter: var(--lg-filter);
-    -webkit-backdrop-filter: var(--lg-filter);
+    @include glass-backdrop(var(--lg-filter));
     isolation: isolate;
     pointer-events: none;
   }
@@ -3248,8 +3237,7 @@ html[data-theme='dark'] {
     .map-sidebar {
       border-right-color: rgba(255, 255, 255, 0.15);
       background: rgba(30, 30, 30, 0.65);
-      backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      @include glass-backdrop(blur(24px) saturate(180%));
     }
 
     .map-search-bar.map-liquid-surface,
@@ -3389,11 +3377,10 @@ html[data-theme='dark'] {
   }
 
   #dock-tooltip.tooltip {
-    @apply !py-1 !px-2.5 !w-fit !text-center !text-[11px] !rounded-4xl !text-black/90;
+    @apply py-1 px-2.5 w-fit text-center text-[11px] rounded-4xl bg-white/100 text-black/90;
     background: rgba(255, 255, 255, 0.84) !important;
     border: 1px solid rgba(255, 255, 255, 0.45);
-    backdrop-filter: blur(15px) saturate(130%);
-    -webkit-backdrop-filter: blur(15px) saturate(130%);
+    @include glass-backdrop(blur(15px) saturate(130%));
     box-shadow: 0 8px 20px rgba(22, 34, 56, 0.2);
   }
 }
